@@ -1,0 +1,250 @@
+<html>
+	<head>
+		<title>GameSpace</title>
+        <!-- Load Google font -->
+        <link href='http://fonts.googleapis.com/css?family=Josefin+Sans:100,300,700' rel='stylesheet' type='text/css'>
+		<script src="{{ url_for('static', filename = 'three.js') }}"></script>
+        <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+        <script src="https://apis.google.com/js/client.js"></script>
+        <script src="{{ url_for('static', filename = 'TrackballControls.js') }}"></script>
+        <script src="{{ url_for('static', filename = 'bootstrap.js') }}"></script>
+		<link rel="stylesheet" href="{{ url_for('static', filename = 'jquery-ui.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap.min.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap-theme.min.css') }}">
+		<style>
+		canvas {
+          width: 100%;
+          height: 100%;
+        }
+        .body {
+          color: #000000;
+        }
+        .navbar {
+          font-family: 'Josefin Sans', sans-serif;
+          background-color: #FF931E;
+          border-radius: 0 !important;
+        }
+        .modal {
+          // THIS IS WHERE THE 'GAMESPACE' TITLE TEXT STYLE IS DEFINED, SINCE IT'S PART OF THE LOADING MODAL
+          width: 100%;
+          border-radius: 0 !important;
+          text-align: center;
+          font-family: 'Josefin Sans', sans-serif;
+		  font-size: 200px;
+		  font-weight: 100;
+		  background-color: #000000;
+		  // color:#57F7E0;
+		  color:#FFFFFF;
+		  // position: absolute;
+		  // position: fixed;
+		  // top: 35%;
+		  // left: 50%;
+		  // transform:translate(-50%, -50%);
+		  // text-shadow: 0px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+		  // text-shadow: 0px 0 #57F7E0, 0 -0px #57F7E0, 0px 0 #57F7E0, -1px 2px #57F7E0;
+		  // text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -8px 12px #000000;
+        }
+        .navbar-text {
+          font-size: 48px;
+          line-height: 100%;
+          color: white;
+          margin-top: 100px;
+          text-align: center;
+          <!--margin: auto;-->
+          margin-top: 100px;
+        }
+		p.gameTitle{
+		  display:none;
+		  font-family: 'Josefin Sans', sans-serif;
+		  font-size: 42px;
+		  font-weight: 700;
+		  // color:#57F7E0;
+		  color:#fff;
+		   -webkit-touch-callout: none;
+	       -webkit-user-select: none;
+	       -khtml-user-select: none;
+	       -moz-user-select: none;
+	       -ms-user-select: none;
+	      user-select: none;
+	      cursor: default;
+		  // position: absolute;
+		  position: fixed;
+		  top: 50%;
+		  left: 50%;
+		  transform:translate(-50%, -50%);
+		  // background-color: rgba(87,247,224,0.35);
+		  background-color: rgba(0,0,0,0.35);
+		  // text-shadow: 0px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+		  // text-shadow: 0px 0 #57F7E0, 0 -0px #57F7E0, 0px 0 #57F7E0, -1px 2px #57F7E0;
+		  text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -1px 2px #000000;
+		  padding-top: 25%;
+		  padding-right: 0px;
+		  padding-bottom: 25%;
+	      padding-left: 0px;
+	      width: 100%;
+		}
+		.ui-autocomplete {
+		  max-height: 150px;
+		  overflow-y: auto;
+		  overflow-x: hidden;
+		}
+		.navbar-center {
+		  text-align: center;
+		  float: none;
+		  display: inline-block;
+		}
+        .panel {
+          border-radius: 0 !important;
+        }
+        iframe {
+          frame-border: 0;
+          background: #000000;
+          border: 0px;
+          border-radius: 0 !important;
+        }
+        .ui-dialog { {
+          border: 0px;
+          background: #ffffff;
+          border-radius: 0 !important;
+        }
+        .ui-dialog-titlebar-close {
+          background-color: #000000;
+          border-radius: 0 !important;
+        }
+        .ui-widget-header {
+          border: 0px;
+          background: #ffffff;
+          border-radius: 0 !important;
+        }
+        .panel {
+          background-color: rgba(87,247,224,0.35);
+        }
+        .element {
+          background-image: url("{{ url_for('static', filename = 'loading_bar.png') }}");
+          background-color: #000000;
+          border-radius: 0;
+        }
+		</style>
+
+	</head>
+	<body style="background-color: #000000;">
+        <!-- Load in audio files -->
+        <audio id="backgroundAudio" autoplay="autoplay" loop>
+          <source src="{{ url_for('static', filename = 'background.mp3') }}" />
+        </audio>
+        <audio id="gameSelectionSound">
+          <source src="{{ url_for('static', filename = 'gameSelection.mp3') }}" />
+        </audio>
+		<audio id="toggleOnSound">
+          <source src="{{ url_for('static', filename = 'toggleOn.mp3') }}" />
+        </audio>
+		<audio id="toggleOffSound">
+          <source src="{{ url_for('static', filename = 'toggleOff.mp3') }}" />
+        </audio>
+		<audio id="beginChime">
+          <source src="{{ url_for('static', filename = 'begin.mp3') }}" />
+        </audio>
+        <!-- Prepare play/pause audio control -->
+        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:15px;padding-top:15px;padding-right:7px;color:transparent;z-index:9999;">
+            <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:25px;">
+        </a>
+        <!-- Prepare info icon that will bring up title-screen modal during exploration -->
+        <a id="infoButtonHolder" data-toggle="modal" data-target="#myModal" style="position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:none;">
+          <img id="infoButton" src="{{ url_for('static', filename = 'infoIcon.png') }}" style="width:21px;">
+        </a>
+        <!-- Prepare controller icon that will display controls modal during exploration -->
+        <a id="controllerButtonHolder" data-toggle="modal" data-target="#controlsModal" style="position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:none;">
+          <img id=controllerButton" src="{{ url_for('static', filename = 'controllerIcon.png') }}" style="width:28px;">
+        </a>
+        <!-- Set up panes that will hold information about selected games -->
+		<p id="gameTitleP" style="" class="gameTitle"><b> </b></p>
+		<div style="position:absolute; display:none;" id="paneHolder"></div>
+		<!--Sourcing-->
+        <script src="{{ url_for('static', filename = 'game.js') }}"></script>
+        <script src="{{ url_for('static', filename = 'main.js') }}"></script>
+        <script src="{{ url_for('static', filename = 'jsapi.js') }}"></script>
+		<!-- Title-screen modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" style="margin-top: 5%;">
+		    <div class="modal-content">
+		      <div class="modal-body">
+				  GameSpace
+				  <div class="progress center-block">
+				  <center><div class="progress-bar" role="progressbar" id="loadingProgress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:2%;">
+				  </div></center>
+				</div>
+		      </div>
+		      <div class="modal-footer">
+                <!-- 'Begin' button that will appear upon all the data being loaded in -->
+		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="text-weight:100" disabled>BEGIN</button></center>
+                <!-- 'About' link that will display data about the project -->
+                <a href="#noscroll" id="aboutLink" style="font-size:24px;border:0;outline:0;">ABOUT</a>
+                &nbsp;
+                <!-- 'Credits' link that will trigger modal that displays the credits -->
+                <a href="#noscroll" id="creditsLink" style="font-size:24px;border:0;outline:0;padding-right:26px;">CREDITS</a>
+                &nbsp;
+                <!-- 'FAQ' link that will trigger modal that displays the FAQ -->
+                <a href="#noscroll" id="faqLink" style="font-size:24px;border:0;outline:0;">FAQ</a>
+                </div>
+		    </div>
+		  </div>
+		</div>
+        <!-- Controls modal -->
+		<div class="modal fade" id="controlsModal" tabindex="-1" role="dialog" aria-labelledby="controlsModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" style="margin-top: 5%;">
+		    <div class="modal-content">
+		      <div class="modal-body">
+				  <img src="{{ url_for('static', filename = 'controls.png') }}" style="height:70%;">
+		      </div>
+		      <div class="modal-footer"></div>
+		    </div>
+		  </div>
+		</div>
+	    <script>
+	    // Boot up GameSpace
+		var game;
+		$(document).ready(function(){
+			// Allow any origin
+			THREE.ImageUtils.crossOrigin = '';
+			// Create main and initialize
+			PATH_TO_STATIC_FOLDER = "{{ url_for('static', filename = '') }}";
+			game = new Main(window.innerWidth, window.innerHeight, PATH_TO_STATIC_FOLDER, {{ starting_game_id }});
+			game.init();
+			// Update loop
+			function gameUpdate(){
+				game.update();
+				window.requestAnimationFrame(gameUpdate, game.renderer.domElement);
+			}
+			gameUpdate();
+		});
+		// Hook up play/pause audio control
+		var backgroundAudio = document.getElementById('backgroundAudio');
+		var gameSelectionSound = document.getElementById('gameSelectionSound');
+		var beginChime = document.getElementById('beginChime');
+		var toggleOnSound = document.getElementById('toggleOnSound');
+		var toggleOffSound = document.getElementById('toggleOffSound');
+        document.getElementById('muteButtonHolder').addEventListener('click', function (e)
+        {
+            e = e || window.event;
+            if(backgroundAudio.muted) {
+                backgroundAudio.muted = false;
+                gameSelectionSound.muted = false;
+                beginChime.muted = false;
+                toggleOnSound.muted = false;
+                toggleOffSound.muted = false;
+                document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOnIcon.png') }}";
+            }
+            else {
+                backgroundAudio.muted = true;
+                gameSelectionSound.muted = true;
+                beginChime.muted = true;
+                toggleOnSound.muted = true;
+                toggleOffSound.muted = true;
+                document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOffIcon.png') }}";
+            }
+            e.preventDefault();
+        }, false);
+		</script>
+	</body>
+</html>
