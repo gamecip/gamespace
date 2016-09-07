@@ -1,6 +1,6 @@
 var Main = function(w, h, pathToStaticDir, startingGameID){
-	this.width = w; // width of screen
-	this.height = h; // height of screen
+	this.width = w; // width of screen (713 during testing)
+	this.height = h; // height of screen (1440 during testing)
 	this.gameFile = pathToStaticDir + 'games1.json'; // file where games are located
 	this.pathToStaticDir = pathToStaticDir;
 	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, 30000000);
@@ -120,7 +120,7 @@ Main.prototype.init = function(){
 						that.selected = that.squareHash[id];
 						that.hasRightPressed = false;
 						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-						$("#gameTitleP").html("<b><center>" + that.selected.gameTitle + "<br><span style='font-size:36px;'>" + that.selected.year + "</span></center></b>");
+						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 						$("#gameTitleP").attr("style", "display: none;");
 						that.isAnimating = true;
 						that.displayPanels(false);
@@ -494,15 +494,15 @@ Main.prototype.readGames = function(pathToStaticDir){
 	var paneDelta = that.width/15;
 	this.paneWidth = paneWidth;
 	this.paneDelta = paneDelta;
-    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 400px; left: 598px; width: 31px; height: 25px; position: absolute;'>" +
+    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 55.8%; left: 41.5%; width: 2.15%; height: 3.4875%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "wikipedia_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 402px; left: 810px; width: 35px; height: 26px; position: absolute;'>" +
+	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 56.02%; left: 56.212%; width: 2.43%; height: 3.627%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "youtube_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 460px; left: 707px; width: 30px; height: 26px; position: absolute;'>" +
+	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 64.17%; left: 49.06%; width: 2.08%; height: 3.627%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "twitter_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
@@ -525,7 +525,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 			// set first obj to selected
 			if(obj.id == that.startId){
 				that.selected = obj;
-				$("#gameTitleP").html("<b><center>" + that.selected.gameTitle + "<br><span style='font-size:36px;'>" + that.selected.year + "</span></center></b>");
+				$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 				that.selectedModel.visible = true;
 				that.selectedModel.position.copy(that.selected.position);
 			}
@@ -623,8 +623,8 @@ Main.prototype.readGames = function(pathToStaticDir){
 		that.closedModal = true;
 		$("#gameTitleP").attr("style", "display: block;");
 		$("#paneHolder").attr("style", "display: block;");
-		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:block;");
-		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:block;");
+		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
+		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
 		$("#gLaunch").attr("style", "display: none;");
 		this.infoButtonVisible = true;
 		this.controlsButtonVisible = true;
@@ -637,6 +637,9 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
+	    $("#aboutLink").attr("style", "display: block;");
+		$("#creditsLink").attr("style", "display: block;");
+		$("#faqLink").attr("style", "display: block;");
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
@@ -647,10 +650,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.controlsButtonVisible = !this.controlsButtonVisible;
 	    if(this.controlsButtonVisible == true) {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:none;");
+	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:none;");
 	    }
 	    else {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:block;");
+	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
 	    }
 	});
 
@@ -665,10 +668,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.infoButtonVisible = !this.infoButtonVisible;
 	    if(this.infoButtonVisible == true) {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:none;");
+	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:none;");
 	    }
 	    else {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:block;");
+	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
 	    }
 	});
 }
@@ -784,7 +787,7 @@ Main.prototype.findGame = function(id){
 	that.selected = that.squareHash[id];
 	that.hasRightPressed = false;
 	that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-	$("#gameTitleP").html("<b><center>" + that.selected.gameTitle + "<br><span style='font-size:36px;'>" + that.selected.year + "</span></center></b>");
+	$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 }
 
 // Wikipedia jazz

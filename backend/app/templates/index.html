@@ -14,10 +14,15 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap-theme.min.css') }}">
 		<style>
 		canvas {
+		  display: block;
           width: 100%;
           height: 100%;
         }
+        .html {
+          overflow: hidden;
+        }
         .body {
+          overflow: hidden;
           color: #000000;
         }
         .navbar {
@@ -31,7 +36,7 @@
           border-radius: 0 !important;
           text-align: center;
           font-family: 'Josefin Sans', sans-serif;
-		  font-size: 200px;
+		  <!--font-size: 200px;-->
 		  font-weight: 100;
 		  background-color: #000000;
 		  // color:#57F7E0;
@@ -45,6 +50,10 @@
 		  // text-shadow: 0px 0 #57F7E0, 0 -0px #57F7E0, 0px 0 #57F7E0, -1px 2px #57F7E0;
 		  // text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -8px 12px #000000;
         }
+        .modal-body {
+          font-size: 13.9vw;
+          font-weight: 100;
+        }
         .navbar-text {
           font-size: 48px;
           line-height: 100%;
@@ -56,33 +65,27 @@
         }
 		p.gameTitle{
 		  display:none;
+		  background-color: rgba(0,0,0,0.35);
 		  font-family: 'Josefin Sans', sans-serif;
-		  font-size: 42px;
+		  font-size: 2.9vw;
 		  font-weight: 700;
-		  // color:#57F7E0;
 		  color:#fff;
 		   -webkit-touch-callout: none;
 	       -webkit-user-select: none;
 	       -khtml-user-select: none;
 	       -moz-user-select: none;
 	       -ms-user-select: none;
+	      text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -0.069vw 0.13809vw #000000;
 	      user-select: none;
 	      cursor: default;
-		  // position: absolute;
-		  position: fixed;
-		  top: 50%;
-		  left: 50%;
-		  transform:translate(-50%, -50%);
-		  // background-color: rgba(87,247,224,0.35);
-		  background-color: rgba(0,0,0,0.35);
-		  // text-shadow: 0px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
-		  // text-shadow: 0px 0 #57F7E0, 0 -0px #57F7E0, 0px 0 #57F7E0, -1px 2px #57F7E0;
-		  text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -1px 2px #000000;
-		  padding-top: 25%;
-		  padding-right: 0px;
-		  padding-bottom: 25%;
-	      padding-left: 0px;
+		  position: absolute;
 	      width: 100%;
+	      height: 100%;
+		}
+		.gameTitleAndYear {
+		  text-align: center;
+		  position: relative;
+		  top: 42%;
 		}
 		.ui-autocomplete {
 		  max-height: 150px;
@@ -146,16 +149,16 @@
           <source src="{{ url_for('static', filename = 'begin.mp3') }}" />
         </audio>
         <!-- Prepare play/pause audio control -->
-        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:15px;padding-top:15px;padding-right:7px;color:transparent;z-index:9999;">
-            <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:25px;">
+        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:1.0417vw;padding-top:1.0417vw;padding-right:0.486vw;color:transparent;z-index:9999;">
+            <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:1.736vw;">
         </a>
         <!-- Prepare info icon that will bring up title-screen modal during exploration -->
-        <a id="infoButtonHolder" data-toggle="modal" data-target="#myModal" style="position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:none;">
-          <img id="infoButton" src="{{ url_for('static', filename = 'infoIcon.png') }}" style="width:21px;">
+        <a id="infoButtonHolder" data-toggle="modal" data-target="#myModal" style="position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:none;">
+          <img id="infoButton" src="{{ url_for('static', filename = 'infoIcon.png') }}" style="width:1.458vw;">
         </a>
         <!-- Prepare controller icon that will display controls modal during exploration -->
-        <a id="controllerButtonHolder" data-toggle="modal" data-target="#controlsModal" style="position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:none;">
-          <img id=controllerButton" src="{{ url_for('static', filename = 'controllerIcon.png') }}" style="width:28px;">
+        <a id="controllerButtonHolder" data-toggle="modal" data-target="#controlsModal" style="position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:none;">
+          <img id=controllerButton" src="{{ url_for('static', filename = 'controllerIcon.png') }}" style="width:1.944vw;">
         </a>
         <!-- Set up panes that will hold information about selected games -->
 		<p id="gameTitleP" style="" class="gameTitle"><b> </b></p>
@@ -179,13 +182,13 @@
                 <!-- 'Begin' button that will appear upon all the data being loaded in -->
 		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="text-weight:100" disabled>BEGIN</button></center>
                 <!-- 'About' link that will display data about the project -->
-                <a href="#noscroll" id="aboutLink" style="font-size:24px;border:0;outline:0;">ABOUT</a>
+                <a href="#noscroll" id="aboutLink" style="font-size:24px;border:0;outline:0;display:none;">ABOUT</a>
                 &nbsp;
                 <!-- 'Credits' link that will trigger modal that displays the credits -->
-                <a href="#noscroll" id="creditsLink" style="font-size:24px;border:0;outline:0;padding-right:26px;">CREDITS</a>
+                <a href="#noscroll" id="creditsLink" style="font-size:24px;border:0;outline:0;padding-right:26px;display:none;">CREDITS</a>
                 &nbsp;
                 <!-- 'FAQ' link that will trigger modal that displays the FAQ -->
-                <a href="#noscroll" id="faqLink" style="font-size:24px;border:0;outline:0;">FAQ</a>
+                <a href="#noscroll" id="faqLink" style="font-size:24px;border:0;outline:0;display:none;">FAQ</a>
                 </div>
 		    </div>
 		  </div>
