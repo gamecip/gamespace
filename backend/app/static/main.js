@@ -228,7 +228,7 @@ Main.prototype.init = function(){
 			}
 		}
 	});
-	document.addEventListener("resize", function(){
+    window.addEventListener("resize", function(){
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
 		that.camera.updateProjectionMatrix();
 		that.renderer.setSize( window.innerWidth, window.innerHeight);
