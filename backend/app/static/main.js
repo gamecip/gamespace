@@ -637,12 +637,6 @@ Main.prototype.readGames = function(pathToStaticDir){
 		this.controlsButtonVisible = true;
 	});
 
-	$("#collapseControls").on("click", function(){
-		that.closedModal = true;
-		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:50px;padding-top:14px;color:transparent;z-index:9998;cursor:pointer;display:block;");
-		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:83px;padding-top:16px;color:transparent;z-index:9997;cursor:pointer;display:block;");
-	});
-
 	$("#infoButtonHolder").on("click", function(){
 	    $("#aboutLink").attr("style", "font-size:1.7vw;border:0;outline:0;display:block;");
 		$("#creditsLink").attr("style", "font-size:1.7vw;border:0;outline:0;padding-right:1.84vw;display:block;");
@@ -650,9 +644,11 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
+	        that.closedModal = false;
 	    }
 	    else {
 	        var toggleSound = document.getElementById("toggleOffSound");
+	        that.closedModal = true;
 	    }
         toggleSound.play();
 	    this.controlsButtonVisible = !this.controlsButtonVisible;
@@ -668,9 +664,11 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
+	        that.closedModal = false;
 	    }
 	    else {
 	        var toggleSound = document.getElementById("toggleOffSound");
+	        that.closedModal = true;
 	    }
         toggleSound.play();
 	    this.infoButtonVisible = !this.infoButtonVisible;
