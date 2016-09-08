@@ -17,7 +17,7 @@ def home():
 def home_with_specified_start_game(starting_game_hashed_id):
     """Render a GameSpace instance that starts from a specified game."""
     # Try to unhash the hashed game ID
-    starting_game_unhashed_id = int(starting_game_hashed_id) / 348290
+    starting_game_unhashed_id = int(starting_game_hashed_id, 16) / 348290
     if starting_game_unhashed_id in range(0, 11829):
         # A valid ID was passed -- start from the specified game
         return render_template('index.html', starting_game_id=starting_game_unhashed_id)
