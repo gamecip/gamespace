@@ -1,6 +1,24 @@
 <html>
 	<head>
 		<title>GameSpace</title>
+		<!-- Load favicon and other icons -->
+		<link rel="apple-touch-icon" sizes="57x57"  href="{{ url_for('static', filename = 'apple-icon-57x57.png') }}">
+		<link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename = 'apple-icon-60x60.png') }}">
+		<link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename = 'apple-icon-72x72.png') }}">
+		<link rel="apple-touch-icon" sizes="76x76" href="{{ url_for('static', filename = 'apple-icon-76x76.png') }}">
+		<link rel="apple-touch-icon" sizes="114x114" href="{{ url_for('static', filename = 'apple-icon-114x114.png') }}">
+		<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename = 'apple-icon-120x120.png') }}">
+		<link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename = 'apple-icon-144x144.png') }}">
+		<link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename = 'apple-icon-152x152.png') }}">
+		<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename = 'apple-icon-180x180.png') }}">
+		<link rel="icon" type="image/png" sizes="192x192"  href="{{ url_for('static', filename = 'android-icon-192x192.png') }}">
+		<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename = 'favicon-32x32.png') }}">
+		<link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename = 'favicon-96x96.png') }}">
+		<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename = 'favicon-16x16.png') }}">
+		<link rel="manifest" href="{{ url_for('static', filename = 'manifest.json') }}">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="{{ url_for('static', filename = 'ms-icon-144x144.png') }}">
+		<meta name="theme-color" content="#ffffff">
         <!-- Load Google font -->
         <link href='http://fonts.googleapis.com/css?family=Josefin+Sans:100,300,700' rel='stylesheet' type='text/css'>
 		<script src="{{ url_for('static', filename = 'three.js') }}"></script>
@@ -136,6 +154,9 @@
         <audio id="backgroundAudio" autoplay="autoplay" loop>
           <source src="{{ url_for('static', filename = 'background.mp3') }}" />
         </audio>
+		<audio id="beginChime">
+          <source src="{{ url_for('static', filename = 'begin.mp3') }}" />
+        </audio>
         <audio id="gameSelectionSound">
           <source src="{{ url_for('static', filename = 'gameSelection.mp3') }}" />
         </audio>
@@ -145,8 +166,8 @@
 		<audio id="toggleOffSound">
           <source src="{{ url_for('static', filename = 'toggleOff.mp3') }}" />
         </audio>
-		<audio id="beginChime">
-          <source src="{{ url_for('static', filename = 'begin.mp3') }}" />
+		<audio id="iconClickSound">
+          <source src="{{ url_for('static', filename = 'iconClick.mp3') }}" />
         </audio>
         <!-- Prepare play/pause audio control -->
         <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:1.0417vw;padding-top:1.0417vw;padding-right:0.486vw;color:transparent;z-index:9999;">
@@ -182,13 +203,13 @@
                 <!-- 'Begin' button that will appear upon all the data being loaded in -->
 		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="text-weight:100" disabled>BEGIN</button></center>
                 <!-- 'About' link that will display data about the project -->
-                <a href="#noscroll" id="aboutLink" style="font-size:24px;border:0;outline:0;display:none;">ABOUT</a>
+                <a href="#noscroll" id="aboutLink" style="display:none;">ABOUT</a>
                 &nbsp;
                 <!-- 'Credits' link that will trigger modal that displays the credits -->
-                <a href="#noscroll" id="creditsLink" style="font-size:24px;border:0;outline:0;padding-right:26px;display:none;">CREDITS</a>
+                <a href="#noscroll" id="creditsLink" style="display:none;">CREDITS</a>
                 &nbsp;
                 <!-- 'FAQ' link that will trigger modal that displays the FAQ -->
-                <a href="#noscroll" id="faqLink" style="font-size:24px;border:0;outline:0;display:none;">FAQ</a>
+                <a href="#noscroll" id="faqLink" style="display:none;">FAQ</a>
                 </div>
 		    </div>
 		  </div>
@@ -227,6 +248,7 @@
 		var beginChime = document.getElementById('beginChime');
 		var toggleOnSound = document.getElementById('toggleOnSound');
 		var toggleOffSound = document.getElementById('toggleOffSound');
+		var iconClickSound = document.getElementById('iconClickSound');
         document.getElementById('muteButtonHolder').addEventListener('click', function (e)
         {
             e = e || window.event;
@@ -236,6 +258,7 @@
                 beginChime.muted = false;
                 toggleOnSound.muted = false;
                 toggleOffSound.muted = false;
+                iconClickSound.muted = false;
                 document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOnIcon.png') }}";
             }
             else {
@@ -244,6 +267,7 @@
                 beginChime.muted = true;
                 toggleOnSound.muted = true;
                 toggleOffSound.muted = true;
+                iconClickSound.muted = true;
                 document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOffIcon.png') }}";
             }
             e.preventDefault();
