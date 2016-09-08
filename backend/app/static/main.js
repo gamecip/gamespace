@@ -640,6 +640,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 		document.getElementById("toggleOnSound").volume = 0.35;
 		document.getElementById("toggleOffSound").volume = 0.35;
 		document.getElementById("iconClickSound").volume = 0.15;
+		document.getElementById("frameCloseSound").volume = 0.25;
 		that.closedModal = true;
 		$("#gameTitleP").attr("style", "display: block;");
 		$("#paneHolder").attr("style", "display: block;");
@@ -726,9 +727,8 @@ Main.prototype.handleAPILoaded2 = function(){
 	console.log("Search Done");
 }
 
-// Search for a specified string.
 function onSearchResponse(response) {
-	showResponse(response);
+	showResponse(response);  // Search for a specified string
 }
 
 function showResponse(response) {
@@ -751,7 +751,11 @@ function showResponse(response) {
 	    				maxHeight: 720,
 	    				resizable:true,
 	    				draggable:true,
-	    				close: function () { $(this).remove(); },
+	    				close: function () {
+    				        var frameCloseSound = document.getElementById("frameCloseSound");
+                            frameCloseSound.play()
+                            $(this).remove();
+    				    },
 	               });
 		$dialog.dialog('open');
 	}
@@ -776,28 +780,6 @@ Main.prototype.searchYT = function(){
   	request.execute(onSearchResponse);
 }
 
-Main.prototype.searchGamenet = function(){
-	var id = this.selected.id;
-	var that = this;
-	var $dialog4 = $('<div></div>')
-               .html('<iframe style="background: white; border: 0px; border-radius: 0;" src="http://gamecip-projects.soe.ucsc.edu/gamenet/ontology/games/' + id + '" width="100%" height="100%"></iframe>')
-               .dialog({
-                    borderRadius: 0,
-    				autoOpen: false,
-    				modal: false,
-    				height: 500,
-    				width: 800,
-    				minWidth: 400,
-    				minHeight: 250,
-    				maxWidth: 1280,
-    				maxHeight: 720,
-    				resizable:true,
-    				draggable:true,
-    				close: function () { $(this).remove(); },
-               });
-    $(".ui-dialog-titlebar-close").attr("style", "background-color:black;");
-	$dialog4.dialog('open');
-}
 
 // Wikipedia jazz
 Main.prototype.openWiki = function(){
@@ -819,7 +801,11 @@ Main.prototype.openWiki = function(){
     				maxHeight: 720,
     				resizable:true,
     				draggable:true,
-    				close: function () { $(this).remove(); },
+    				close: function () {
+    				    var frameCloseSound = document.getElementById("frameCloseSound");
+                        frameCloseSound.play()
+    				    $(this).remove();
+    				},
                });
 	$dialog2.dialog('open');
 }
