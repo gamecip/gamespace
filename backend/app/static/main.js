@@ -27,9 +27,11 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.loader;
 	if(startingGameID != -1) {
 	    this.startId = startingGameID  // ID for starting game passed via link from Twitter (or the web)
+	    this.randomStartGame = false;
 	}
 	else {
 	    this.startId = Math.floor(Math.random()*11000); // Randomly selected ID for starting game
+	    this.randomStartGame = true;
 	}
 	this.cameraVel = 0;
 	this.closedModal = false;
@@ -126,6 +128,7 @@ Main.prototype.init = function(){
 						that.displayPanels(false);
 						that.selectedModel.visible = false;
 						that.selectedModel.position.copy(that.selected.position);
+						console.log(that.selected.position);
 					}
 				}
 				// release panning
@@ -149,9 +152,11 @@ Main.prototype.init = function(){
 	});
 	$("#twitterPanel").on("click", function(){
 	    var iconClickSound = document.getElementById("iconClickSound");
-        iconClickSound.play()
-	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20")
-	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@gamespace__!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + that.selected.id*348290 + "&related=gamespace__",
+        iconClickSound.play();
+	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20");
+	    modifiedGameID = that.selected.id*348290;
+	    hashedGameID = modifiedGameID.toString(16);
+	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@gamespace__!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + hashedGameID + "&related=gamespace__",
 		window.open(
 		    url=urlString,
 		    name='_blank',
@@ -521,15 +526,23 @@ Main.prototype.readGames = function(pathToStaticDir){
 
 	function load(data){
 		for(var i = 0; i < data.length; i++){
-			// Set up physical game object
+			// Set up physical game object with this ID
 			var myGame = data[i];
 			var obj = new GameObject(myGame.id, myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
 			var vert = new THREE.Vector3(myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000);
 			vert.id = obj.id;
 			that.squareHash[obj.id] = obj;
 			that.points.vertices.push(vert);
-			// set first obj to selected
+			// Check if the current game is the start game
 			if(obj.id == that.startId){
+			    // If the game was randomly selected but is too far out, choose another one
+			    if(this.randomStartGame) {
+			        if(Math.abs(obj.position.x) > 100000 || Math.abs(obj.position.y) > 100000 || Math.abs(obj.position.z) > 100000) {
+			            that.startID += 1;
+			        }
+			    }
+			}
+			if(obj.id == that.startId) {
 				that.selected = obj;
 				$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 				that.selectedModel.visible = true;
@@ -784,15 +797,6 @@ Main.prototype.searchGamenet = function(){
                });
     $(".ui-dialog-titlebar-close").attr("style", "background-color:black;");
 	$dialog4.dialog('open');
-}
-
-Main.prototype.findGame = function(id){
-	var id = id;
-	var that = this;
-	that.selected = that.squareHash[id];
-	that.hasRightPressed = false;
-	that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-	$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 }
 
 // Wikipedia jazz
