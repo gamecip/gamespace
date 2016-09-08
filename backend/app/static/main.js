@@ -138,12 +138,18 @@ Main.prototype.init = function(){
 	});
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
 	$("#wikiPanel").on("click", function(){
+	    var iconClickSound = document.getElementById("iconClickSound");
+        iconClickSound.play()
 		that.openWiki();
 	});
 	$("#youtubePanel").on("click", function(){
+	    var iconClickSound = document.getElementById("iconClickSound");
+        iconClickSound.play()
 		that.googleApiClientReady();
 	});
 	$("#twitterPanel").on("click", function(){
+	    var iconClickSound = document.getElementById("iconClickSound");
+        iconClickSound.play()
 	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20")
 	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@gamespace__!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + that.selected.id*348290 + "&related=gamespace__",
 		window.open(
@@ -311,8 +317,8 @@ Main.prototype.update = function(){
 			var yMovement = 0.0;
 			if(this.leftArrow) xMovement = 0.02;
 			if(this.rightArrow) xMovement = -0.02;
-			if(this.upArrow) yMovement = -0.02;
-			if(this.downArrow) yMovement = 0.02;
+			if(this.upArrow) yMovement = 0.02;
+			if(this.downArrow) yMovement = -0.02;
 			this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
 		}
 		if(this.isAnimating){
@@ -614,12 +620,13 @@ Main.prototype.readGames = function(pathToStaticDir){
 	asyncLoad3();
 
 	$("#gLaunch").on("click", function(){
+	    var beginChime = document.getElementById("beginChime");
+        beginChime.play();
 	    document.getElementById("gameSelectionSound").volume = 0.27;
 		document.getElementById("beginChime").volume = 0.75;
 		document.getElementById("toggleOnSound").volume = 0.35;
 		document.getElementById("toggleOffSound").volume = 0.35;
-	    var beginChime = document.getElementById("beginChime");
-        beginChime.play();
+		document.getElementById("iconClickSound").volume = 0.15;
 		that.closedModal = true;
 		$("#gameTitleP").attr("style", "display: block;");
 		$("#paneHolder").attr("style", "display: block;");
@@ -637,9 +644,9 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    $("#aboutLink").attr("style", "display: block;");
-		$("#creditsLink").attr("style", "display: block;");
-		$("#faqLink").attr("style", "display: block;");
+	    $("#aboutLink").attr("style", "font-size:1.7vw;border:0;outline:0;display:block;");
+		$("#creditsLink").attr("style", "font-size:1.7vw;border:0;outline:0;padding-right:1.84vw;display:block;");
+		$("#faqLink").attr("style", "font-size:24px;border:0;outline:0;display:block;");
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
