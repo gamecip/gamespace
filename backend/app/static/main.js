@@ -48,6 +48,9 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.infoButtonVisible = false;
 	this.controlsButtonVisible = false;
 	this.toggleOn = true;
+	this.lastFrameX = this.camera.position.x;
+    this.lastFrameY = this.camera.position.y;
+    this.lastFrameZ = this.camera.position.z;
 }
 
 Main.prototype.init = function(){
@@ -302,7 +305,6 @@ Main.prototype.update = function(){
 			this.pushRotateCamera(xMovement, yMovement, pof, 50);
 		}
 		// Do the same function but for arrows
-		// keyboard controls coming soon
 		if(this.selected == null && this.leftArrow || this.selected == null && this.rightArrow || this.selected == null && this.upArrow || this.selected == null && this.downArrow){
 			var xMovement = 0.0;
 			var yMovement = 0.0;
@@ -326,12 +328,28 @@ Main.prototype.update = function(){
 			if(this.downArrow) yMovement = -0.02;
 			this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
 		}
+		// If we're currently teleporting to a game, keep doing that
 		if(this.isAnimating){
 			this.animating();
 		}
-		this.cameraUpdate();
-		// Render on update
-		this.renderer.render(this.scene, this.camera);
+		// Update the camera
+        this.cameraUpdate();
+        // If the camera has moved its position or changed its angle, then
+        // render the scene again
+        if(
+            this.lastFrameX != this.camera.position.x ||
+            this.lastFrameY != this.camera.position.y ||
+            this.lastFrameZ != this.camera.position.z ||
+            this.leftArrow ||
+            this.rightArrow
+        ) {
+            this.renderer.render(this.scene, this.camera);
+        }
+        // Save the position of the camera on this frame (so that we can avoid
+        // needless rerendering if no movement happens before the next frame)
+        this.lastFrameX = this.camera.position.x;
+        this.lastFrameY = this.camera.position.y;
+        this.lastFrameZ = this.camera.position.z;
 	}
 }
 
