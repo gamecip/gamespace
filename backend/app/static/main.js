@@ -587,6 +587,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 
 		function loadJSONDataFile(filename, totalFiles){
 			$.getJSON(pathToStaticDir + "model_data/" + filename, function(data){
+				var randomGameList = [];
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
@@ -595,35 +596,45 @@ Main.prototype.readGames = function(pathToStaticDir){
 					vert.id = obj.id;
 					that.squareHash[obj.id] = obj;
 					that.points.vertices.push(vert);
-					// Check if the current game is the start game
-					if(obj.id === that.startId){
-						// If the game was randomly selected but is too far out, choose another one
-						if(that.randomStartGame) {
-							if(Math.abs(obj.position.x) > 100000 || Math.abs(obj.position.y) > 100000 || Math.abs(obj.position.z) > 100000) {
-								that.startId += 1;
-							}
-						}
-					}
-					if(obj.id === that.startId) {
-						that.selected = obj;
-						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
-						that.selectedModel.visible = true;
-						that.selectedModel.position.copy(that.selected.position);
+					if(that.randomStartGame){
+						randomGameList.push(obj.id);
 					}
 					that.gamesLoaded++;
-					var $loadBar = $("#loadingProgress");
-					$loadBar.css('width', Math.floor(that.gamesLoaded/totalFiles) + "%");
-					$loadBar.attr("aria-valuenow", Math.floor(that.gamesLoaded/totalFiles));
 				}
+
+				var $loadBar = $("#loadingProgress");
+				$loadBar.css('width', Math.floor(that.gamesLoaded/totalFiles) + "%");
+				$loadBar.attr("aria-valuenow", Math.floor(that.gamesLoaded/totalFiles));
+
 				//When out of files to load you are good to go
 				that.filesToLoad--;
 				if(that.filesToLoad === 0){
-					that.loadComplete = true;
+
+					function getRandomChoice(){
+						var id = Math.floor(Math.random() * (randomGameList.length - 1));
+						var randObj = that.squareHash[randomGameList[id]];
+						if(Math.abs(randObj.position.x) > 100000 || Math.abs(randObj.position.y) > 100000 || Math.abs(randObj.position.z) > 100000) {
+							randomGameList.splice(randomGameList.indexOf(id), 1);
+							return getRandomChoice();
+						}else{
+							return randObj.id;
+						}
+					}
+
+					if(that.randomStartGame){
+						that.startId = getRandomChoice();
+					}
+
+					that.selected = that.squareHash[that.startId];
+					$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
+					that.selectedModel.visible = true;
+					that.selectedModel.position.copy(that.selected.position);
+
 					that.particles = new THREE.PointCloud(that.points, that.cloudMaterial);
 					that.scene.add(that.particles);
 					$("#gLaunch").removeAttr("disabled");
+					that.loadComplete = true;
 				}
-
 			});
 		}
 	}
