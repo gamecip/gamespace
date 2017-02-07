@@ -1,3 +1,15 @@
+//Just adding in some notes here for next time you look at this:
+// Adding in logging will require grabbing the camera's position in three dimensional space
+// and Camera.getWorldDirection for viewing frustum
+var GameObject = function(id, x, y, z, title, wiki, platform, year){
+    this.position = new THREE.Vector3(x, y, z);
+    this.id = id;
+    this.platform = platform;
+    this.year = year;
+    this.gameTitle = title;
+    this.wiki = wiki;
+};
+
 var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
@@ -13,6 +25,8 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.rightLocation = new THREE.Vector2(0, 0); // 2d vector for right mouse rotation, stores clicked position of right click
 	this.hasRightPressed = false; // has right been pressed since selection
 	this.leftMouseDown;
+	this.filesToLoad = 0;
+	this.loadComplete = false;
 	this.leftLocation = new THREE.Vector2(0, 0);
 	this.leftArrow = false;
 	this.rightArrow = false;
@@ -30,7 +44,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	    this.randomStartGame = false;
 	}
 	else {
-	    this.startId = Math.floor(Math.random()*11000); // Randomly selected ID for starting game
+	    this.startId = Math.floor(Math.random()*16000); // Randomly selected ID for starting game
 	    this.randomStartGame = true;
 	}
 	this.cameraVel = 0;
@@ -76,13 +90,13 @@ Main.prototype.init = function(){
 	// set what the camera is looking at
 	// we will change this when we are "selected" or not
 	this.renderer.render(this.scene, this.camera);
-	//context menu and mouse event listenders
+	//context menu and mouse event listeners
 	document.addEventListener("contextmenu", function(e){
 		e.preventDefault();
 	});
 	document.addEventListener("mousedown", function(e){
 		if(that.closedModal && !that.isAnimating){
-			if(e.which == "1"){
+			if(e.which === 1){
 				// Keep track of what we're selecting
 				that.selectionLoc.x = that.mousePos.x;
 				that.selectionLoc.y = that.mousePos.y;
@@ -91,7 +105,7 @@ Main.prototype.init = function(){
 				that.leftLocation.x = that.mousePos.x;
 				that.leftLocation.y = that.mousePos.y;
 			}
-			if(e.which == "3"){
+			if(e.which === 3){
 				that.hasRightPressed = true;
 				that.rightLocation.x = e.pageX;
 				that.rightLocation.y = e.pageY;
@@ -105,7 +119,7 @@ Main.prototype.init = function(){
 	});
 	document.addEventListener("mouseup", function(e){
 		if(that.closedModal && !that.isAnimating){
-			if(e.which == "1"){
+			if(e.which === 1){
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50 
 					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta) 
 					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
@@ -137,7 +151,7 @@ Main.prototype.init = function(){
 				// release panning
 				that.leftMouseDown = false;
 			}
-			if(e.which == "3"){
+			if(e.which === 3){
 				that.rightMouseDown = false;
 			}
 		}
@@ -168,40 +182,50 @@ Main.prototype.init = function(){
 	});
 	document.addEventListener("keydown", function(e){
 		if(that.closedModal && !that.isAnimating){
-			if(e.which == "87"){
+			//w
+			if(e.which === 87){
 				that.cameraVel = 50;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
-			else if (e.which == "83"){
+				//s
+			else if (e.which === 83){
 			    that.cameraVel = -50;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
 
-			if(e.which == "16"){
+			//Shift
+			if(e.which === 16){
 				if(that.cameraVel == 50){
 					that.cameraVel = 250;
 				} else if(that.cameraVel == -50){
 					that.cameraVel = -250;
 				}
 			}
-			if(e.which == "37"){
+			//left arrow
+			// hasRightPressed triggers an end to rotation around a selected object
+			// it has nothing to do, directly, with right arrow, but is inheriting
+			// the functionality of right mouse click
+			if(e.which === 37){
 
 				that.leftArrow = true;
 				that.hasRightPressed = true;
 			}
-			if(e.which == "38"){
+			//up arrow
+			if(e.which === 38){
 				that.upArrow = true;
 				that.hasRightPressed = true;
 			}
-			if(e.which == "39"){
+			//right arrow
+			if(e.which === 39){
 				that.rightArrow = true;
 				that.hasRightPressed = true;
 			}
-			if(e.which == "40"){
+			//down arrow
+			if(e.which === 40){
 				that.downArrow = true;
 				that.hasRightPressed = true;
 			}
@@ -210,34 +234,41 @@ Main.prototype.init = function(){
 
 	document.addEventListener("keyup", function(e){
 		if(that.closedModal && !that.isAnimating){
-			if(e.which == "87"){
+			//w
+			if(e.which === 87){
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
 			}
-			else if (e.which == "83"){
+				//s
+			else if (e.which === 83){
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
 			}
 
-			if(e.which == "16"){
+			//shift
+			if(e.which === 16){
 				if(that.cameraVel == 250){
 					that.cameraVel = 50;
 				} else if(that.cameraVel == -250){
 					that.cameraVel = -50;
 				}
 			}
-			if(e.which == "37"){
+			//left arrow
+			if(e.which === 37){
 				that.leftArrow = false;
 			}
-			if(e.which == "38"){
+			//up arrow
+			if(e.which === 38){
 				that.upArrow = false;
 			}
-			if(e.which == "39"){
+			//right arrow
+			if(e.which === 39){
 				that.rightArrow = false;
 			}
-			if(e.which == "40"){
+			//down arrow
+			if(e.which === 40){
 				that.downArrow = false;
 			}
 		}
@@ -261,73 +292,83 @@ Main.prototype.displayPanels = function(on){
 		$("#wikiPanel").css("display", "none");
 		$("#twitterPanel").css("display", "none");
 	}
-}
+};
 
 Main.prototype.update = function(){
-	if(this.gamesLoaded > 11000){
+	if(this.loadComplete){
+		var xMovement, yMovement, lookAtVec, pof;
+
 		//rotate around the selected object on update, only if the right mouse button hasn't been clicked for that object
 		if(!this.hasRightPressed && this.selected !== null && !this.isAnimating){
 			this.pushRotateCamera(0.001, 0, this.selected.position, 500);
 		}
-		//what to do when mouse right is held down:
-		//Get force of angle "push" from difference between current mouse pos and starting mouse pos
-		//We cap the movement of it so that, when distance is increased, the rotation doesn't increase dramatically
-		if(this.rightMouseDown && this.selected !== null){
-			var xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
-			var yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
-			if(xMovement > 0.1) xMovement = 0.1;
-			if(xMovement < -0.1) xMovement = -0.1;
-			if(yMovement > 0.07) yMovement = 0.07;
-			if(yMovement < -0.07) yMovement = -0.07;
-			this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
+
+		if(this.selected === null){
+			if(this.leftMouseDown){
+				var xPan = -(this.leftLocation.x - this.mousePos.x)/5;
+				var yPan = (this.leftLocation.y - this.mousePos.y)/5;
+				if(xPan > 50) xPan = 50;
+				if(xPan < -50) xPan = -50;
+				if(yPan > 50) yPan = 50;
+				if(yPan < -50) yPan = -50;
+				this.pushPan(xPan, yPan);
+
+			}
+			if(this.rightMouseDown){
+				xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
+				yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
+				if(xMovement > 0.07) xMovement = 0.07;
+				if(xMovement < -0.07) xMovement = -0.07;
+				if(yMovement > 0.05) yMovement = 0.05;
+				if(yMovement < -0.05) yMovement = -0.05;
+				lookAtVec = new THREE.Vector3(0, 0, -50);
+				lookAtVec.applyQuaternion( this.camera.quaternion );
+				pof = new THREE.Vector3(lookAtVec.x + this.camera.position.x,
+					lookAtVec.y + this.camera.position.y,
+					lookAtVec.z + this.camera.position.z);
+				this.pushRotateCamera(xMovement, yMovement, pof, 50);
+
+			}
+			if(this.leftArrow || this.rightArrow || this.upArrow || this.downArrow){
+				xMovement = 0.0;
+				yMovement = 0.0;
+				if(this.leftArrow) xMovement = 0.01;
+				if(this.rightArrow) xMovement = -0.01;
+				if(this.upArrow) yMovement = 0.01;
+				if(this.downArrow) yMovement = -0.01;
+				lookAtVec = new THREE.Vector3(0, 0, -50);
+				lookAtVec.applyQuaternion( this.camera.quaternion );
+				pof = new THREE.Vector3(lookAtVec.x + this.camera.position.x,
+					lookAtVec.y + this.camera.position.y,
+					lookAtVec.z + this.camera.position.z);
+				this.pushRotateCamera(xMovement, yMovement, pof, 50);
+			}
+		}else{
+			//what to do when mouse right is held down:
+			//Get force of angle "push" from difference between current mouse pos and starting mouse pos
+			//We cap the movement of it so that, when distance is increased, the rotation doesn't increase dramatically
+			if(this.rightMouseDown){
+				xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
+				yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
+				if(xMovement > 0.1) xMovement = 0.1;
+				if(xMovement < -0.1) xMovement = -0.1;
+				if(yMovement > 0.07) yMovement = 0.07;
+				if(yMovement < -0.07) yMovement = -0.07;
+				this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
+			}
+			// Do the same function but for arrows
+			if(this.leftArrow || this.rightArrow || this.upArrow || this.downArrow) {
+				xMovement = 0.0;
+				yMovement = 0.0;
+				if(this.leftArrow) xMovement = 0.02;
+				if(this.rightArrow) xMovement = -0.02;
+				if(this.upArrow) yMovement = 0.02;
+				if(this.downArrow) yMovement = -0.02;
+				this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
+
+			}
 		}
-		if(this.leftMouseDown && this.selected == null){
-			var xPan = -(this.leftLocation.x - this.mousePos.x)/5;
-			var yPan = (this.leftLocation.y - this.mousePos.y)/5;
-			if(xPan > 50) xPan = 50;
-			if(xPan < -50) xPan = -50;
-			if(yPan > 50) yPan = 50;
-			if(yPan < -50) yPan = -50;
-			this.pushPan(xPan, yPan);
-		}
-		if(this.rightMouseDown && this.selected == null){
-			var xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
-			var yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
-			if(xMovement > 0.07) xMovement = 0.07;
-			if(xMovement < -0.07) xMovement = -0.07;
-			if(yMovement > 0.05) yMovement = 0.05;
-			if(yMovement < -0.05) yMovement = -0.05;
-			var lookAtVec = new THREE.Vector3(0, 0, -50);
-			lookAtVec.applyQuaternion( this.camera.quaternion );
-			var pof = new THREE.Vector3(lookAtVec.x + this.camera.position.x,
-								  lookAtVec.y + this.camera.position.y,
-								  lookAtVec.z + this.camera.position.z);
-			this.pushRotateCamera(xMovement, yMovement, pof, 50);
-		}
-		// Do the same function but for arrows
-		if(this.selected == null && this.leftArrow || this.selected == null && this.rightArrow || this.selected == null && this.upArrow || this.selected == null && this.downArrow){
-			var xMovement = 0.0;
-			var yMovement = 0.0;
-			if(this.leftArrow) xMovement = 0.01;
-			if(this.rightArrow) xMovement = -0.01;
-			if(this.upArrow) yMovement = 0.01;
-			if(this.downArrow) yMovement = -0.01;
-			var lookAtVec = new THREE.Vector3(0, 0, -50);
-			lookAtVec.applyQuaternion( this.camera.quaternion );
-			var pof = new THREE.Vector3(lookAtVec.x + this.camera.position.x,
-								  lookAtVec.y + this.camera.position.y,
-								  lookAtVec.z + this.camera.position.z);
-			this.pushRotateCamera(xMovement, yMovement, pof, 50);
-		}
-		if(this.selected !== null && this.leftArrow || this.selected !== null && this.rightArrow || this.selected !== null && this.upArrow || this.selected !== null && this.downArrow){
-			var xMovement = 0.0;
-			var yMovement = 0.0;
-			if(this.leftArrow) xMovement = 0.02;
-			if(this.rightArrow) xMovement = -0.02;
-			if(this.upArrow) yMovement = 0.02;
-			if(this.downArrow) yMovement = -0.02;
-			this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
-		}
+
 		// If we're currently teleporting to a game, keep doing that
 		if(this.isAnimating){
 			this.animating();
@@ -337,9 +378,9 @@ Main.prototype.update = function(){
         // If the camera has moved its position or changed its angle, then
         // render the scene again
         if(
-            this.lastFrameX != this.camera.position.x ||
-            this.lastFrameY != this.camera.position.y ||
-            this.lastFrameZ != this.camera.position.z ||
+            this.lastFrameX !== this.camera.position.x ||
+            this.lastFrameY !== this.camera.position.y ||
+            this.lastFrameZ !== this.camera.position.z ||
             this.leftArrow ||
             this.rightArrow
         ) {
@@ -351,7 +392,7 @@ Main.prototype.update = function(){
         this.lastFrameY = this.camera.position.y;
         this.lastFrameZ = this.camera.position.z;
 	}
-}
+};
 
 Main.prototype.animating = function(){
 	//
@@ -362,9 +403,8 @@ Main.prototype.animating = function(){
 	inFrontOfCamera = inFrontOfCamera.applyQuaternion( this.camera.quaternion );
 	// Get vector toward selected object
 	var towardSelected = new THREE.Vector3(this.selected.position.x - this.camera.position.x,
-																				this.selected.position.y - this.camera.position.y,
-																				this.selected.position.z - this.camera.position.z);
-	var towardSelected = towardSelected.normalize();
+		this.selected.position.y - this.camera.position.y,
+		this.selected.position.z - this.camera.position.z).normalize();
 	// Get x-z angle of inFrontOfCamera
 	var camAngle = Math.atan2(inFrontOfCamera.x, inFrontOfCamera.z);
 	// Get x-z angle of towardSelected
@@ -421,9 +461,8 @@ Main.prototype.animating = function(){
 		this.camera.position.x += nextPos.x;
 		this.camera.position.y += nextPos.y;
 		this.camera.position.z += nextPos.z;
-	} else
-	// Exit thingy if both thingies happen
-	if(this.camera.position.distanceTo(this.selected.position) < 575  + this.camVel && Math.abs(vDiff) < 0.005 && Math.abs(diffAngle) < 0.005){
+		// Exit thingy if both thingies happen
+	} else if(this.camera.position.distanceTo(this.selected.position) < 575  + this.camVel && Math.abs(vDiff) < 0.005 && Math.abs(diffAngle) < 0.005){
 		var gameSelectionChime = document.getElementById("gameSelectionSound");
         gameSelectionChime.play();
 		this.isAnimating = false;
@@ -433,7 +472,7 @@ Main.prototype.animating = function(){
 		this.selectedModel.visible = true;
 		this.selectedModel.position.copy(this.selected.position);
 	}
-}
+};
 
 Main.prototype.cameraUpdate = function(){
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
@@ -442,7 +481,7 @@ Main.prototype.cameraUpdate = function(){
 								  cameraMovementVec.y + this.camera.position.y,
 								  cameraMovementVec.z + this.camera.position.z);
 	this.camera.position.set(nextPos.x, nextPos.y, nextPos.z);
-}
+};
 
 // "push" rotate the camera around a specific position,
 // pushX -- x strength of push
@@ -472,7 +511,7 @@ Main.prototype.pushRotateCamera = function(pushX, pushY, position, distance){
 	var upVec = (Math.sin(this.yAngle) > 0 ) ? (new THREE.Vector3(0, 1, 0)) : (new THREE.Vector3(0, -1, 0));
 	this.camera.up = upVec;
 	this.camera.lookAt(position);
-}
+};
 
 // Push zoom function, for zooming
 Main.prototype.pushZoom = function(push){
@@ -482,13 +521,13 @@ Main.prototype.pushZoom = function(push){
 								  cameraMovementVec.y + this.camera.position.y,
 								  cameraMovementVec.z + this.camera.position.z);
 	this.camera.position.set(nextPos.x, nextPos.y, nextPos.z);
-}
+};
 
 // Pan camera function
 Main.prototype.pushPan = function(pushX, pushY){
 	this.camera.translateX(pushX);
 	this.camera.translateY(pushY);
-}
+};
 
 // Find game, given a vector of its position
 Main.prototype.findGameID = function(v){
@@ -501,17 +540,11 @@ Main.prototype.findGameID = function(v){
 	}
 	alert("game not found");
 	return -1;
-}
+};
 
 // Read in the json for games and create a bunch of objects for those games
 Main.prototype.readGames = function(pathToStaticDir){
 	$('#myModal').modal({backdrop: "static", keyboard: false});
-	// First, load The textures
-	this.texturesLoaded = false;
-	var wikiTexLoaded = false;
-	var picTexLoaded = false;
-	var utubeTexLoaded = false;
-	var gNetLoaded = false;
 	var that = this;
 	this.circleSprite = THREE.ImageUtils.loadTexture(pathToStaticDir + "sphere.png", undefined, function(){
 		console.log("sphere texture loaded")
@@ -542,113 +575,58 @@ Main.prototype.readGames = function(pathToStaticDir){
 	this.cloudMaterial = new THREE.PointCloudMaterial( {size: 250, map: this.circleSprite, transparent: true, blending: THREE.AdditiveBlending,  depthWrite: false});
 	this.points = new THREE.Geometry();
 
-	function load(data){
+	$.getJSON("/gamespace/load_info", loadGameFiles).fail(function(){
+		console.log("Load info failed.")
+	});
+
+	function loadGameFiles(data){
+		that.filesToLoad = data.length;
 		for(var i = 0; i < data.length; i++){
-			// Set up physical game object with this ID
-			var myGame = data[i];
-			var obj = new GameObject(myGame.id, myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
-			var vert = new THREE.Vector3(myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000);
-			vert.id = obj.id;
-			that.squareHash[obj.id] = obj;
-			that.points.vertices.push(vert);
-			// Check if the current game is the start game
-			if(obj.id == that.startId){
-			    // If the game was randomly selected but is too far out, choose another one
-			    if(this.randomStartGame) {
-			        if(Math.abs(obj.position.x) > 100000 || Math.abs(obj.position.y) > 100000 || Math.abs(obj.position.z) > 100000) {
-			            that.startID += 1;
-			        }
-			    }
-			}
-			if(obj.id == that.startId) {
-				that.selected = obj;
-				$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
-				that.selectedModel.visible = true;
-				that.selectedModel.position.copy(that.selected.position);
-			}
-			that.gamesLoaded++;
-			var $loadBar = $("#loadingProgress");
-			$loadBar.css('width', Math.floor(that.gamesLoaded/118) + "%");
-			$loadBar.attr("aria-valuenow", Math.floor(that.gamesLoaded/118));
+			loadJSONDataFile(data[i], data.length);
 		}
-		if(that.gamesLoaded == 11829){
-		    // Enable the 'ENTER' launch button on the loading screen; upon being clicked, this
-		    // will kick off the experience
-			$("#gLaunch").removeAttr("disabled");
-		}
-	}
 
-	$.getJSON(pathToStaticDir + "games1.json", load).fail(function(){
-		console.log("JSON loading failed");
-	});
+		function loadJSONDataFile(filename, totalFiles){
+			$.getJSON(pathToStaticDir + "model_data/" + filename, function(data){
+				for(var i = 0; i < data.length; i++){
+					// Set up physical game object with this ID
+					var myGame = data[i];
+					var obj = new GameObject(myGame.id, myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
+					var vert = new THREE.Vector3(myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000);
+					vert.id = obj.id;
+					that.squareHash[obj.id] = obj;
+					that.points.vertices.push(vert);
+					// Check if the current game is the start game
+					if(obj.id === that.startId){
+						// If the game was randomly selected but is too far out, choose another one
+						if(that.randomStartGame) {
+							if(Math.abs(obj.position.x) > 100000 || Math.abs(obj.position.y) > 100000 || Math.abs(obj.position.z) > 100000) {
+								that.startId += 1;
+							}
+						}
+					}
+					if(obj.id === that.startId) {
+						that.selected = obj;
+						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
+						that.selectedModel.visible = true;
+						that.selectedModel.position.copy(that.selected.position);
+					}
+					that.gamesLoaded++;
+					var $loadBar = $("#loadingProgress");
+					$loadBar.css('width', Math.floor(that.gamesLoaded/totalFiles) + "%");
+					$loadBar.attr("aria-valuenow", Math.floor(that.gamesLoaded/totalFiles));
+				}
+				//When out of files to load you are good to go
+				that.filesToLoad--;
+				if(that.filesToLoad === 0){
+					that.loadComplete = true;
+					that.particles = new THREE.PointCloud(that.points, that.cloudMaterial);
+					that.scene.add(that.particles);
+					$("#gLaunch").removeAttr("disabled");
+				}
 
-	$.getJSON(pathToStaticDir + "games2.json", load).fail(function(){
-		console.log("JSON loading failed");
-	});
-
-	$.getJSON(pathToStaticDir + "games3.json", load).fail(function(){
-		console.log("JSON loading failed");
-	});
-
-	function asyncLoad1(){
-		if(that.gamesLoaded >= 3000){
-			$.getJSON(pathToStaticDir + "games4.json", load).fail(function(){
-				console.log("JSON loading failed");
 			});
-
-			$.getJSON(pathToStaticDir + "games5.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-
-			$.getJSON(pathToStaticDir + "games6.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-		} else {
-			window.setTimeout(asyncLoad1, 1000);
 		}
 	}
-
-	function asyncLoad2(){
-		if(that.gamesLoaded >= 6000){
-			$.getJSON(pathToStaticDir + "games7.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-
-			$.getJSON(pathToStaticDir + "games8.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-
-			$.getJSON(pathToStaticDir + "games9.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-		} else {
-			window.setTimeout(asyncLoad2, 1000);
-		}
-	}
-
-	function asyncLoad3(){
-		if(that.gamesLoaded >= 9000){
-			$.getJSON(pathToStaticDir + "games10.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-
-			$.getJSON(pathToStaticDir + "games11.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-
-			$.getJSON(pathToStaticDir + "games12.json", load).fail(function(){
-				console.log("JSON loading failed");
-			});
-			that.particles = new THREE.PointCloud(that.points, that.cloudMaterial);
-			that.scene.add(that.particles);
-		} else {
-			window.setTimeout(asyncLoad3, 1000);
-		}
-	}
-
-	asyncLoad1();
-	asyncLoad2();
-	asyncLoad3();
 
 	$("#gLaunch").on("click", function(){
 	    var beginChime = document.getElementById("beginChime");
@@ -711,7 +689,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
 	    }
 	});
-}
+};
 
 // Listener for deselecting objects
 function deselectGame() {
@@ -743,7 +721,7 @@ function callProgress(step){
 Main.prototype.handleAPILoaded2 = function(){
 	this.ready = true;
 	console.log("Search Done");
-}
+};
 
 function onSearchResponse(response) {
 	showResponse(response);  // Search for a specified string
@@ -771,9 +749,9 @@ function showResponse(response) {
 	    				draggable:true,
 	    				close: function () {
     				        var frameCloseSound = document.getElementById("frameCloseSound");
-                            frameCloseSound.play()
+                            frameCloseSound.play();
                             $(this).remove();
-    				    },
+    				    }
 	               });
 		$dialog.dialog('open');
 	}
@@ -785,7 +763,7 @@ function showResponse(response) {
 Main.prototype.googleApiClientReady = function() {
     gapi.client.setApiKey("AIzaSyA6hUiMdEq7Wsp1kJ7hd7pm5gWYl3rgP0c");
     gapi.client.load('youtube', 'v3', Main.prototype.searchYT);
-}
+};
 
 Main.prototype.searchYT = function(){
 	var q = "Let's Play " + game.selected.gameTitle + " " +game.selected.platform;
@@ -796,7 +774,7 @@ Main.prototype.searchYT = function(){
     	safeSearch: "moderate"
   	});
   	request.execute(onSearchResponse);
-}
+};
 
 
 // Wikipedia jazz
@@ -821,9 +799,11 @@ Main.prototype.openWiki = function(){
     				draggable:true,
     				close: function () {
     				    var frameCloseSound = document.getElementById("frameCloseSound");
-                        frameCloseSound.play()
+                        frameCloseSound.play();
     				    $(this).remove();
-    				},
+    				}
                });
 	$dialog2.dialog('open');
-}
+};
+
+//Data
