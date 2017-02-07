@@ -1,3 +1,7 @@
+import re
+import os
+import json
+
 from flask import Flask, render_template, request
 
 # JOR: I THINK THE COMMENTED LINE NEEDS TO BE USED FOR ACTUAL DEPLOYMENT
@@ -23,6 +27,11 @@ def home_with_specified_start_game(starting_game_hashed_id):
         return render_template('index.html', starting_game_id=starting_game_unhashed_id)
     else:  # A bogus ID was passed -- start from a random game
         return render_template('index.html', starting_game_id=-1)
+
+@app.route('/gamespace/load_info')
+def load_info():
+    return json.dumps([fn for fn in os.listdir("./static/model_data")])
+
 
 
 if __name__ == '__main__':
