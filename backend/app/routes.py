@@ -30,7 +30,7 @@ def home_with_specified_start_game(starting_game_hashed_id):
 
 @app.route('/gamespace/load_info')
 def load_info():
-    return json.dumps([fn for fn in os.listdir("./static/model_data")])
+    return json.dumps([fn for fn in os.listdir("./static/model_data") if fn.split(".")[-1] == "json"])
 
 
 
