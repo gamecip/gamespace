@@ -1,3 +1,5 @@
+COORDINATE_MULTIPLIER = 30000000
+
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
 // and Camera.getWorldDirection for viewing frustum
@@ -15,7 +17,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.height = h; // height of screen (1440 during testing)
 	this.gameFile = pathToStaticDir + 'games1.json'; // file where games are located
 	this.pathToStaticDir = pathToStaticDir;
-	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, 30000000);
+	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, COORDINATE_MULTIPLIER);
 	this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 	this.scene = new THREE.Scene();
 	this.gameSquares = []; // array of games meshes
@@ -591,8 +593,8 @@ Main.prototype.readGames = function(pathToStaticDir){
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
-					var obj = new GameObject(myGame.id, myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
-					var vert = new THREE.Vector3(myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000);
+					var obj = new GameObject(myGame.id, myGame.coords[0]*COORDINATE_MULTIPLIER, myGame.coords[1]*COORDINATE_MULTIPLIER, myGame.coords[2]*COORDINATE_MULTIPLIER, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
+					var vert = new THREE.Vector3(myGame.coords[0]*COORDINATE_MULTIPLIER, myGame.coords[1]*COORDINATE_MULTIPLIER, myGame.coords[2]*COORDINATE_MULTIPLIER);
 					vert.id = obj.id;
 					that.squareHash[obj.id] = obj;
 					that.points.vertices.push(vert);
