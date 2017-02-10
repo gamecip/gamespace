@@ -69,9 +69,12 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 
 Main.prototype.init = function(){
 	this.renderer.setSize(this.width, this.height);
-	document.body.appendChild(this.renderer.domElement);
+	document.getElementById("mainWindow").appendChild(this.renderer.domElement);
 	this.renderer.setClearColor(0x000000, 1.0);
 	this.renderer.clear();
+	this.joystick = new VirtualJoystick({
+		mouseSupport: true
+	});
 	// mouse button isn't down
 	this.rightMouseDown = false;
 	// set camera position
@@ -588,11 +591,20 @@ Main.prototype.readGames = function(pathToStaticDir){
 		function loadJSONDataFile(filename, totalFiles){
 			$.getJSON(pathToStaticDir + "model_data/" + filename, function(data){
 				var randomGameList = [];
+				var coordMultiplier = 30000;
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
-					var obj = new GameObject(myGame.id, myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000, myGame.title, myGame["wiki_url"], myGame.platform, myGame.year);
-					var vert = new THREE.Vector3(myGame.coords[0]*30000000, myGame.coords[1]*30000000, myGame.coords[2]*30000000);
+					var obj = new GameObject(myGame.id,
+						myGame.coords[0]*coordMultiplier,
+						myGame.coords[1]*coordMultiplier,
+						myGame.coords[2]*coordMultiplier,
+						myGame.title, myGame["wiki_url"],
+						myGame.platform,
+						myGame.year);
+					var vert = new THREE.Vector3(myGame.coords[0]*coordMultiplier,
+						myGame.coords[1]*coordMultiplier,
+						myGame.coords[2]*coordMultiplier);
 					vert.id = obj.id;
 					that.squareHash[obj.id] = obj;
 					that.points.vertices.push(vert);
@@ -613,12 +625,12 @@ Main.prototype.readGames = function(pathToStaticDir){
 					function getRandomChoice(){
 						var id = Math.floor(Math.random() * (randomGameList.length - 1));
 						var randObj = that.squareHash[randomGameList[id]];
-						if(Math.abs(randObj.position.x) > 100000 || Math.abs(randObj.position.y) > 100000 || Math.abs(randObj.position.z) > 100000) {
-							randomGameList.splice(randomGameList.indexOf(id), 1);
-							return getRandomChoice();
-						}else{
+						//if(Math.abs(randObj.position.x) > 100000 || Math.abs(randObj.position.y) > 100000 || Math.abs(randObj.position.z) > 100000) {
+						//	randomGameList.splice(randomGameList.indexOf(id), 1);
+						//	return getRandomChoice();
+						//}else{
 							return randObj.id;
-						}
+						//}
 					}
 
 					if(that.randomStartGame){
