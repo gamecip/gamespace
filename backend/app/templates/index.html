@@ -201,7 +201,7 @@
         <script src="{{ url_for('static', filename = 'main.js') }}"></script>
         <script src="{{ url_for('static', filename = 'jsapi.js') }}"></script>
 		<!-- Title-screen modal -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		  <div class="modal-dialog" style="margin-top: 5%;">
 		    <div class="modal-content">
 		      <div class="modal-body">
@@ -210,24 +210,17 @@
 				  <center><div class="progress-bar" role="progressbar" id="loadingProgress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:2%;">
 				  </div></center>
 				</div>
+				  <center><div id="projectInfo" style="display:none;"></div></center>
 		      </div>
 		      <div class="modal-footer">
                 <!-- 'Begin' button that will appear upon all the data being loaded in -->
 		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="text-weight:100" disabled>BEGIN</button></center>
-                <!-- 'About' link that will display data about the project -->
-                <a href="#noscroll" id="aboutLink" style="display:none;">ABOUT</a>
-                &nbsp;
-                <!-- 'Credits' link that will trigger modal that displays the credits -->
-                <a href="#noscroll" id="creditsLink" style="display:none;">CREDITS</a>
-                &nbsp;
-                <!-- 'FAQ' link that will trigger modal that displays the FAQ -->
-                <a href="#noscroll" id="faqLink" style="display:none;">FAQ</a>
                 </div>
 		    </div>
 		  </div>
 		</div>
         <!-- Controls modal -->
-		<div class="modal fade" id="controlsModal" tabindex="-1" role="dialog" aria-labelledby="controlsModalLabel" aria-hidden="true">
+		<div class="modal fade" id="controlsModal" role="dialog" aria-labelledby="controlsModalLabel" aria-hidden="true">
 		  <div class="modal-dialog" style="margin-top: 5%;">
 		    <div class="modal-content">
 		      <div class="modal-body">

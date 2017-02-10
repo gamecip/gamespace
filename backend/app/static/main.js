@@ -1,3 +1,8 @@
+PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techniques from natural language " +
+                "processing and machine learning, GameSpace is a project by the Expressive Intelligence Studio " +
+                "at UC Santa Cruz."
+COORDINATE_MULTIPLIER = 30000000
+
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
 // and Camera.getWorldDirection for viewing frustum
@@ -13,9 +18,8 @@ var GameObject = function(id, x, y, z, title, wiki, platform, year){
 var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
-	this.gameFile = pathToStaticDir + 'games1.json'; // file where games are located
 	this.pathToStaticDir = pathToStaticDir;
-	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, 30000000);
+	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, COORDINATE_MULTIPLIER);
 	this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 	this.scene = new THREE.Scene();
 	this.gameSquares = []; // array of games meshes
@@ -49,6 +53,8 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	}
 	this.cameraVel = 0;
 	this.closedModal = false;
+	this.infoModalOpen = false;  // Used to support escape key closing modals
+	this.controllerModalOpen = false;  // Used to support escape key closing modals
 	this.mouseUpCounter = 0;
 	this.isAnimating = false; // Are we currently animating movement to a selection?
 	this.xAng = true;
@@ -185,22 +191,21 @@ Main.prototype.init = function(){
 	});
 	document.addEventListener("keydown", function(e){
 		if(that.closedModal && !that.isAnimating){
-			//w
+			// w
 			if(e.which === 87){
 				that.cameraVel = 50;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
-				//s
+			// s
 			else if (e.which === 83){
 			    that.cameraVel = -50;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
-
-			//Shift
+			// Shift
 			if(e.which === 16){
 				if(that.cameraVel == 50){
 					that.cameraVel = 250;
@@ -208,7 +213,7 @@ Main.prototype.init = function(){
 					that.cameraVel = -250;
 				}
 			}
-			//left arrow
+			// left arrow
 			// hasRightPressed triggers an end to rotation around a selected object
 			// it has nothing to do, directly, with right arrow, but is inheriting
 			// the functionality of right mouse click
@@ -217,17 +222,17 @@ Main.prototype.init = function(){
 				that.leftArrow = true;
 				that.hasRightPressed = true;
 			}
-			//up arrow
+			// up arrow
 			if(e.which === 38){
 				that.upArrow = true;
 				that.hasRightPressed = true;
 			}
-			//right arrow
+			// right arrow
 			if(e.which === 39){
 				that.rightArrow = true;
 				that.hasRightPressed = true;
 			}
-			//down arrow
+			// down arrow
 			if(e.which === 40){
 				that.downArrow = true;
 				that.hasRightPressed = true;
@@ -237,20 +242,20 @@ Main.prototype.init = function(){
 
 	document.addEventListener("keyup", function(e){
 		if(that.closedModal && !that.isAnimating){
-			//w
+			// w
 			if(e.which === 87){
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
 			}
-				//s
+			// s
 			else if (e.which === 83){
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
 			}
 
-			//shift
+			// shift
 			if(e.which === 16){
 				if(that.cameraVel == 250){
 					that.cameraVel = 50;
@@ -258,22 +263,31 @@ Main.prototype.init = function(){
 					that.cameraVel = -50;
 				}
 			}
-			//left arrow
+			// left arrow
 			if(e.which === 37){
 				that.leftArrow = false;
 			}
-			//up arrow
+			// up arrow
 			if(e.which === 38){
 				that.upArrow = false;
 			}
-			//right arrow
+			// right arrow
 			if(e.which === 39){
 				that.rightArrow = false;
 			}
-			//down arrow
+			// down arrow
 			if(e.which === 40){
 				that.downArrow = false;
 			}
+		}
+		// escape key -- close modal
+		if(e.which === 27){
+		    if(that.infoModalOpen) {
+		        $("#infoButtonHolder").click();
+		    }
+            if(that.controllerModalOpen) {
+		        $("#controllerButtonHolder").click();
+		    }
 		}
 	});
     window.addEventListener("resize", function(){
@@ -591,7 +605,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 		function loadJSONDataFile(filename, totalFiles){
 			$.getJSON(pathToStaticDir + "model_data/" + filename, function(data){
 				var randomGameList = [];
-				var coordMultiplier = 30000;
+				var coordMultiplier = 30000000;
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
@@ -671,17 +685,18 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    $("#aboutLink").attr("style", "font-size:1.7vw;border:0;outline:0;display:block;");
-		$("#creditsLink").attr("style", "font-size:1.7vw;border:0;outline:0;padding-right:1.84vw;display:block;");
-		$("#faqLink").attr("style", "font-size:24px;border:0;outline:0;display:block;");
+	    $("#projectInfo").attr("style", "font-size:22pt;border:0;outline:0;width:61%;");
+	    $("#projectInfo").html(PROJECT_INFO);
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
 	        that.closedModal = false;
+	        that.infoModalOpen = true;
 	    }
 	    else {
 	        var toggleSound = document.getElementById("toggleOffSound");
 	        that.closedModal = true;
+	        that.infoModalOpen = false;
 	    }
         toggleSound.play();
 	    this.controlsButtonVisible = !this.controlsButtonVisible;
@@ -698,10 +713,12 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
 	        that.closedModal = false;
+	        that.controllerModalOpen = true;
 	    }
 	    else {
 	        var toggleSound = document.getElementById("toggleOffSound");
 	        that.closedModal = true;
+	        that.controllerModalOpen = false;
 	    }
         toggleSound.play();
 	    this.infoButtonVisible = !this.infoButtonVisible;
