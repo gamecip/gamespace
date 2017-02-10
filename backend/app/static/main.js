@@ -1,3 +1,6 @@
+PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techniques from natural language " +
+                "processing and machine learning, GameSpace is a project by the Expressive Intelligence Studio " +
+                "at UC Santa Cruz."
 COORDINATE_MULTIPLIER = 30000000
 
 //Just adding in some notes here for next time you look at this:
@@ -670,9 +673,8 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    $("#aboutLink").attr("style", "font-size:1.7vw;border:0;outline:0;display:block;");
-		$("#creditsLink").attr("style", "font-size:1.7vw;border:0;outline:0;padding-right:1.84vw;display:block;");
-		$("#faqLink").attr("style", "font-size:24px;border:0;outline:0;display:block;");
+	    $("#projectInfo").attr("style", "font-size:22pt;border:0;outline:0;width:61%;");
+	    $("#projectInfo").html(PROJECT_INFO);
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
