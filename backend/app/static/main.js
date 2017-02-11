@@ -1,6 +1,7 @@
 PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techniques from natural language " +
-                "processing and machine learning, GameSpace is a project by the Expressive Intelligence Studio " +
-                "at UC Santa Cruz."
+                "processing and machine learning. A project by the Expressive Intelligence Studio " +
+                "at UC Santa Cruz. " +
+                "<br><br>For more info, see our press kit."
 COORDINATE_MULTIPLIER = 30000000
 
 //Just adding in some notes here for next time you look at this:
@@ -808,10 +809,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.controlsButtonVisible = !this.controlsButtonVisible;
 	    if(this.controlsButtonVisible == true) {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:none;");
+	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:none;");
 	    }
 	    else {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
+	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:block;");
 	    }
 	});
 
@@ -830,10 +831,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.infoButtonVisible = !this.infoButtonVisible;
 	    if(this.infoButtonVisible == true) {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:none;");
+	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:none;");
 	    }
 	    else {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
+	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:block;");
 	    }
 	});
 };
@@ -850,8 +851,8 @@ function enterSpace() {
     game.closedModal = true;
     $("#gameTitleP").attr("style", "display: block;");
     $("#paneHolder").attr("style", "display: block;");
-    $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
-    $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
+    $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:block;");
+    $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:block;");
     $("#gLaunch").attr("style", "display: none;");
     game.infoButtonVisible = true;
     game.controlsButtonVisible = true;

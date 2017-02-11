@@ -59,6 +59,9 @@
 		  background-color: #000000;
 		  color:#FFFFFF;
         }
+        #projectInfo {
+          font-weight: 300;
+        }
         .modal-body {
           font-size: 13.9vw;
           font-weight: 100;
@@ -164,16 +167,16 @@
           <source src="{{ url_for('static', filename = 'frameClose.mp3') }}" />
         </audio>
         <!-- Prepare play/pause audio control -->
-        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:1.0417vw;padding-top:1.0417vw;padding-right:0.486vw;color:transparent;z-index:9999;">
-            <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:1.736vw;">
+        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:14.9945px;padding-top:14.9945px;padding-right:6.995825px;color:transparent;z-index:9999;">
+            <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:24.98920205761317;">
         </a>
         <!-- Prepare info icon that will bring up title-screen modal during exploration -->
-        <a id="infoButtonHolder" data-toggle="modal" data-target="#myModal" style="position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:none;">
-          <img id="infoButton" src="{{ url_for('static', filename = 'infoIcon.png') }}" style="width:1.458vw;">
+        <a id="infoButtonHolder" data-toggle="modal" data-target="#myModal" style="position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:none;">
+          <img id="infoButton" src="{{ url_for('static', filename = 'infoIcon.png') }}" style="width:20.987475px;">
         </a>
         <!-- Prepare controller icon that will display controls modal during exploration -->
-        <a id="controllerButtonHolder" data-toggle="modal" data-target="#controlsModal" style="position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:none;">
-          <img id=controllerButton" src="{{ url_for('static', filename = 'controllerIcon.png') }}" style="width:1.944vw;">
+        <a id="controllerButtonHolder" data-toggle="modal" data-target="#controlsModal" style="position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:none;">
+          <img id=controllerButton" src="{{ url_for('static', filename = 'controllerIcon.png') }}" style="width:27.9833px;">
         </a>
         <!-- Set up panes that will hold information about selected games -->
 		<p id="gameTitleP" style="" class="gameTitle"><b> </b></p>
