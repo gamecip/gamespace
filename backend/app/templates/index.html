@@ -32,19 +32,11 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap-theme.min.css') }}">
 		<style>
-		/*canvas {*/
-		  /*display: block;*/
-          /*width: 100%;*/
-          /*height: 100%;*/
-        /*}*/
-
         #mainWindow {
             overflow: hidden;
             width: 100%;
             height: 100%;
         }
-
-
         .html {
           overflow: hidden;
         }
@@ -63,19 +55,9 @@
           border-radius: 0 !important;
           text-align: center;
           font-family: 'Josefin Sans', sans-serif;
-		  <!--font-size: 200px;-->
 		  font-weight: 100;
 		  background-color: #000000;
-		  // color:#57F7E0;
 		  color:#FFFFFF;
-		  // position: absolute;
-		  // position: fixed;
-		  // top: 35%;
-		  // left: 50%;
-		  // transform:translate(-50%, -50%);
-		  // text-shadow: 0px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
-		  // text-shadow: 0px 0 #57F7E0, 0 -0px #57F7E0, 0px 0 #57F7E0, -1px 2px #57F7E0;
-		  // text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -8px 12px #000000;
         }
         .modal-body {
           font-size: 13.9vw;
@@ -230,7 +212,15 @@
 		    </div>
 		  </div>
 		</div>
-
+        <!-- Control buttons for mobile -->
+        <!--<a id="forwardButtonMobileHolder" style="position:absolute;color:transparent;bottom:96px;left:8px;z-index:9999;">-->
+          <!--<img id=forwardButtonMobile" src="{{ url_for('static', filename = 'wButton.png') }}" style="width:80px;">-->
+        <!--</a>-->
+        <!--<a id="backwardButtonMobileHolder" style="position:absolute;color:transparent;bottom:8px;left:8px;z-index:9999;">-->
+          <!--<img id=backwardButtonMobile" src="{{ url_for('static', filename = 'sButton.png') }}" style="width:80px;">-->
+        <!--</a>-->
+        <div id="leftJoystickContainer" style="position:absolute;z-index:9999;left:0"></div>
+        <div id="rightJoystickContainer" style="position:absolute;z-index:9998;left:0"></div>
         <div id="mainWindow"></div>
 	    <script>
 	    // Boot up GameSpace

@@ -78,7 +78,26 @@ Main.prototype.init = function(){
 	document.getElementById("mainWindow").appendChild(this.renderer.domElement);
 	this.renderer.setClearColor(0x000000, 1.0);
 	this.renderer.clear();
-	this.joystick = new VirtualJoystick({
+	this.leftJoystick = new VirtualJoystick({
+        container: document.getElementById('leftJoystickContainer'),
+        strokeStyle: 'white',
+        mouseSupport: true,
+        stationaryBase: true,
+        baseX: 80,
+        baseY: game.height-80,
+        limitStickTravel: true,
+        stickRadius: 10,
+		mouseSupport: true
+	});
+	this.rightJoystick = new VirtualJoystick({
+        container: document.getElementById('rightJoystickContainer'),
+        strokeStyle: 'white',
+        mouseSupport: true,
+        stationaryBase: true,
+        baseX: game.width-80,
+        baseY: game.height-80,
+        limitStickTravel: true,
+        stickRadius: 10,
 		mouseSupport: true
 	});
 	// mouse button isn't down
@@ -218,18 +237,17 @@ Main.prototype.init = function(){
 			// it has nothing to do, directly, with right arrow, but is inheriting
 			// the functionality of right mouse click
 			if(e.which === 37){
-
 				that.leftArrow = true;
-				that.hasRightPressed = true;
-			}
-			// up arrow
-			if(e.which === 38){
-				that.upArrow = true;
 				that.hasRightPressed = true;
 			}
 			// right arrow
 			if(e.which === 39){
 				that.rightArrow = true;
+				that.hasRightPressed = true;
+			}
+			// up arrow
+			if(e.which === 38){
+				that.upArrow = true;
 				that.hasRightPressed = true;
 			}
 			// down arrow
@@ -290,6 +308,58 @@ Main.prototype.init = function(){
 		    }
 		}
 	});
+	$("#forwardButtonMobileHolder").on("mousedown", function(){
+	    if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 50;
+            if(!(that.selected == null)){
+                deselectGame();
+            }
+        }
+    });
+    $("#forwardButtonMobileHolder").on("touchstart", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 50;
+            if(!(that.selected == null)){
+                deselectGame();
+            }
+        }
+    });
+    $("#forwardButtonMobileHolder").on("mouseup", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 0;
+        }
+    });
+    $("#forwardButtonMobileHolder").on("touchend", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 0;
+        }
+    });
+    $("#backwardButtonMobileHolder").on("mousedown", function(){
+	    if(that.closedModal && !that.isAnimating){
+            that.cameraVel = -50;
+            if(!(that.selected == null)){
+                deselectGame();
+            }
+        }
+    });
+    $("#backwardButtonMobileHolder").on("touchstart", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = -50;
+            if(!(that.selected == null)){
+                deselectGame();
+            }
+        }
+    });
+    $("#backwardButtonMobileHolder").on("mouseup", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 0;
+        }
+    });
+    $("#backwardButtonMobileHolder").on("touchend", function(){
+        if(that.closedModal && !that.isAnimating){
+            that.cameraVel = 0;
+        }
+    });
     window.addEventListener("resize", function(){
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
 		that.camera.updateProjectionMatrix();
@@ -313,12 +383,19 @@ Main.prototype.displayPanels = function(on){
 
 Main.prototype.update = function(){
 	if(this.loadComplete){
+
 		var xMovement, yMovement, lookAtVec, pof;
 
 		//rotate around the selected object on update, only if the right mouse button hasn't been clicked for that object
 		if(!this.hasRightPressed && this.selected !== null && !this.isAnimating){
 			this.pushRotateCamera(0.001, 0, this.selected.position, 500);
 		}
+
+		if(!(this.selected == null)){
+		    if(this.leftJoystick.up() || this.leftJoystick.down()){
+		        deselectGame();
+		    }
+        }
 
 		if(this.selected === null){
 			if(this.leftMouseDown){
@@ -346,13 +423,21 @@ Main.prototype.update = function(){
 				this.pushRotateCamera(xMovement, yMovement, pof, 50);
 
 			}
-			if(this.leftArrow || this.rightArrow || this.upArrow || this.downArrow){
+			if(this.leftArrow ||
+			    this.rightArrow ||
+			    this.upArrow ||
+			    this.downArrow ||
+			    this.rightJoystick.left() && !(this.isAnimating) ||
+			    this.rightJoystick.right() && !(this.isAnimating) ||
+			    this.rightJoystick.up() && !(this.isAnimating) ||
+			    this.rightJoystick.down() && !(this.isAnimating)
+			    ) {
 				xMovement = 0.0;
 				yMovement = 0.0;
-				if(this.leftArrow) xMovement = 0.01;
-				if(this.rightArrow) xMovement = -0.01;
-				if(this.upArrow) yMovement = 0.01;
-				if(this.downArrow) yMovement = -0.01;
+				if(this.leftArrow || this.rightJoystick.left()) xMovement = 0.01;
+				if(this.rightArrow || this.rightJoystick.right()) xMovement = -0.01;
+				if(this.upArrow || this.rightJoystick.up()) yMovement = 0.01;
+				if(this.downArrow || this.rightJoystick.down()) yMovement = -0.01;
 				lookAtVec = new THREE.Vector3(0, 0, -50);
 				lookAtVec.applyQuaternion( this.camera.quaternion );
 				pof = new THREE.Vector3(lookAtVec.x + this.camera.position.x,
@@ -374,13 +459,21 @@ Main.prototype.update = function(){
 				this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
 			}
 			// Do the same function but for arrows
-			if(this.leftArrow || this.rightArrow || this.upArrow || this.downArrow) {
+			if(this.leftArrow ||
+			    this.rightArrow ||
+			    this.upArrow ||
+			    this.downArrow ||
+			    this.rightJoystick.left() && !(this.isAnimating) ||
+			    this.rightJoystick.right() && !(this.isAnimating) ||
+			    this.rightJoystick.up() && !(this.isAnimating) ||
+			    this.rightJoystick.down() && !(this.isAnimating)
+			    ) {
 				xMovement = 0.0;
 				yMovement = 0.0;
-				if(this.leftArrow) xMovement = 0.02;
-				if(this.rightArrow) xMovement = -0.02;
-				if(this.upArrow) yMovement = 0.02;
-				if(this.downArrow) yMovement = -0.02;
+				if(this.leftArrow || this.rightJoystick.left()) xMovement = 0.02;
+				if(this.rightArrow || this.rightJoystick.right()) xMovement = -0.02;
+				if(this.upArrow || this.rightJoystick.up()) yMovement = 0.02;
+				if(this.downArrow || this.rightJoystick.down()) yMovement = -0.02;
 				this.pushRotateCamera(xMovement, yMovement, this.selected.position, 500);
 
 			}
@@ -399,7 +492,9 @@ Main.prototype.update = function(){
             this.lastFrameY !== this.camera.position.y ||
             this.lastFrameZ !== this.camera.position.z ||
             this.leftArrow ||
-            this.rightArrow
+            this.rightArrow ||
+            this.rightJoystick.left() ||
+            this.rightJoystick.right()
         ) {
             this.renderer.render(this.scene, this.camera);
         }
@@ -492,12 +587,24 @@ Main.prototype.animating = function(){
 };
 
 Main.prototype.cameraUpdate = function(){
+    var resetVel = false;
+    if (this.leftJoystick.up()){
+        this.cameraVel = 250;
+        resetVel = true;
+    }
+    if (this.leftJoystick.down()){
+        this.cameraVel = -250;
+        resetVel = true;
+    }
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
 	cameraMovementVec.applyQuaternion( this.camera.quaternion );
 	var nextPos = new THREE.Vector3(cameraMovementVec.x + this.camera.position.x,
 								  cameraMovementVec.y + this.camera.position.y,
 								  cameraMovementVec.z + this.camera.position.z);
 	this.camera.position.set(nextPos.x, nextPos.y, nextPos.z);
+	if (resetVel){
+	    this.cameraVel = 0;
+	}
 };
 
 // "push" rotate the camera around a specific position,
@@ -605,7 +712,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 		function loadJSONDataFile(filename, totalFiles){
 			$.getJSON(pathToStaticDir + "model_data/" + filename, function(data){
 				var randomGameList = [];
-				var coordMultiplier = 30000000;
+				var coordMultiplier = COORDINATE_MULTIPLIER;
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
@@ -682,6 +789,26 @@ Main.prototype.readGames = function(pathToStaticDir){
 		$("#gLaunch").attr("style", "display: none;");
 		this.infoButtonVisible = true;
 		this.controlsButtonVisible = true;
+	});
+
+	$("#gLaunch").on("touchend", function(){
+	    var beginChime = document.getElementById("beginChime");
+        beginChime.play();
+	    document.getElementById("gameSelectionSound").volume = 0.27;
+		document.getElementById("beginChime").volume = 0.75;
+		document.getElementById("toggleOnSound").volume = 0.35;
+		document.getElementById("toggleOffSound").volume = 0.35;
+		document.getElementById("iconClickSound").volume = 0.15;
+		document.getElementById("frameCloseSound").volume = 0.25;
+		that.closedModal = true;
+		$("#gameTitleP").attr("style", "display: block;");
+		$("#paneHolder").attr("style", "display: block;");
+		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
+		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
+		$("#gLaunch").attr("style", "display: none;");
+		this.infoButtonVisible = true;
+		this.controlsButtonVisible = true;
+		$('#myModal').modal('toggle');
 	});
 
 	$("#infoButtonHolder").on("click", function(){

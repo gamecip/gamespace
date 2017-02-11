@@ -13,7 +13,8 @@ var VirtualJoystick	= function(opts)
 	this._stickRadius	= opts.stickRadius !== undefined ? opts.stickRadius : 100
 	this._useCssTransform	= opts.useCssTransform !== undefined ? opts.useCssTransform : false
 
-	this._container.style.position	= "relative"
+//	this._container.style.position	= "relative"
+    this._container.style.position	= "absolute"  // JOR 2-10-17: Changed this to place joystick where I want it
 
 	this._container.appendChild(this._baseEl)
 	this._baseEl.style.position	= "absolute"
