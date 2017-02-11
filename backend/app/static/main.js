@@ -788,6 +788,9 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#gLaunch").on("touchend", function(){
+	    // Audio autoplay doesn't work on mobile browsers -- audio can only play
+	    // following a user interaction
+        document.getElementById("backgroundAudio").play();
 	    enterSpace();
 		$('#myModal').modal('toggle');
 	});
