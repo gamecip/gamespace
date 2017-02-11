@@ -78,28 +78,38 @@ Main.prototype.init = function(){
 	document.getElementById("mainWindow").appendChild(this.renderer.domElement);
 	this.renderer.setClearColor(0x000000, 1.0);
 	this.renderer.clear();
-	this.leftJoystick = new VirtualJoystick({
-        container: document.getElementById('leftJoystickContainer'),
-        strokeStyle: 'white',
-        mouseSupport: true,
-        stationaryBase: true,
-        baseX: 80,
-        baseY: game.height-80,
-        limitStickTravel: true,
-        stickRadius: 10,
-		mouseSupport: true
-	});
-	this.rightJoystick = new VirtualJoystick({
-        container: document.getElementById('rightJoystickContainer'),
-        strokeStyle: 'white',
-        mouseSupport: true,
-        stationaryBase: true,
-        baseX: game.width-80,
-        baseY: game.height-80,
-        limitStickTravel: true,
-        stickRadius: 10,
-		mouseSupport: true
-	});
+	if('createTouch' in document) {
+        this.leftJoystick = new VirtualJoystick({
+            container: document.getElementById('leftJoystickContainer'),
+            strokeStyle: 'white',
+            mouseSupport: true,
+            stationaryBase: true,
+            baseX: 80,
+            baseY: game.height-80,
+            limitStickTravel: true,
+            stickRadius: 10,
+            mouseSupport: true
+	    });
+	    this.rightJoystick = new VirtualJoystick({
+            container: document.getElementById('rightJoystickContainer'),
+            strokeStyle: 'white',
+            mouseSupport: true,
+            stationaryBase: true,
+            baseX: game.width-80,
+            baseY: game.height-80,
+            limitStickTravel: true,
+            stickRadius: 10,
+            mouseSupport: true
+	    });
+	}
+	else {
+	    // No joysticks needed, but create some prototypes that will act like the
+	    // joysticks so that we can still call their methods as needed without
+	    // having to check whether they exist each time
+	    this.leftJoystick = this.rightJoystick = function FakeJoystick() {}
+	    this.leftJoystick.up = this.leftJoystick.down = this.leftJoystick.left = this.leftJoystick.right = function () {return false};
+	    this.rightJoystick.up = this.rightJoystick.down = this.rightJoystick.left = this.rightJoystick.right = function () {return false};
+	}
 	// mouse button isn't down
 	this.rightMouseDown = false;
 	// set camera position
@@ -773,41 +783,11 @@ Main.prototype.readGames = function(pathToStaticDir){
 	}
 
 	$("#gLaunch").on("click", function(){
-	    var beginChime = document.getElementById("beginChime");
-        beginChime.play();
-	    document.getElementById("gameSelectionSound").volume = 0.27;
-		document.getElementById("beginChime").volume = 0.75;
-		document.getElementById("toggleOnSound").volume = 0.35;
-		document.getElementById("toggleOffSound").volume = 0.35;
-		document.getElementById("iconClickSound").volume = 0.15;
-		document.getElementById("frameCloseSound").volume = 0.25;
-		that.closedModal = true;
-		$("#gameTitleP").attr("style", "display: block;");
-		$("#paneHolder").attr("style", "display: block;");
-		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
-		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
-		$("#gLaunch").attr("style", "display: none;");
-		this.infoButtonVisible = true;
-		this.controlsButtonVisible = true;
+	    enterSpace();
 	});
 
 	$("#gLaunch").on("touchend", function(){
-	    var beginChime = document.getElementById("beginChime");
-        beginChime.play();
-	    document.getElementById("gameSelectionSound").volume = 0.27;
-		document.getElementById("beginChime").volume = 0.75;
-		document.getElementById("toggleOnSound").volume = 0.35;
-		document.getElementById("toggleOffSound").volume = 0.35;
-		document.getElementById("iconClickSound").volume = 0.15;
-		document.getElementById("frameCloseSound").volume = 0.25;
-		that.closedModal = true;
-		$("#gameTitleP").attr("style", "display: block;");
-		$("#paneHolder").attr("style", "display: block;");
-		$("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
-		$("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
-		$("#gLaunch").attr("style", "display: none;");
-		this.infoButtonVisible = true;
-		this.controlsButtonVisible = true;
+	    enterSpace();
 		$('#myModal').modal('toggle');
 	});
 
@@ -857,6 +837,25 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    }
 	});
 };
+
+function enterSpace() {
+    var beginChime = document.getElementById("beginChime");
+    beginChime.play();
+    document.getElementById("gameSelectionSound").volume = 0.27;
+    document.getElementById("beginChime").volume = 0.75;
+    document.getElementById("toggleOnSound").volume = 0.35;
+    document.getElementById("toggleOffSound").volume = 0.35;
+    document.getElementById("iconClickSound").volume = 0.15;
+    document.getElementById("frameCloseSound").volume = 0.25;
+    game.closedModal = true;
+    $("#gameTitleP").attr("style", "display: block;");
+    $("#paneHolder").attr("style", "display: block;");
+    $("#infoButtonHolder").attr("style", "position:absolute;padding-left:3.472vw;padding-top:0.972vw;padding-right:0.486vw;color:transparent;z-index:9998;cursor:pointer;display:block;");
+    $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:5.763vw;padding-top:1.111vw;color:transparent;z-index:9997;cursor:pointer;display:block;");
+    $("#gLaunch").attr("style", "display: none;");
+    game.infoButtonVisible = true;
+    game.controlsButtonVisible = true;
+}
 
 // Listener for deselecting objects
 function deselectGame() {
