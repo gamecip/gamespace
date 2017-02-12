@@ -2,8 +2,8 @@ PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techn
                 "processing and machine learning. A project by the Expressive Intelligence Studio " +
                 "at UC Santa Cruz. " +
                 "<br><br>For more info, see our press kit."
-COORDINATE_MULTIPLIER = 150000
-DRAW_DISTANCE = 3000000000
+COORDINATE_MULTIPLIER = 150000;
+DRAW_DISTANCE = 300000;
 
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
