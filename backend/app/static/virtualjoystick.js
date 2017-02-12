@@ -12,6 +12,7 @@ var VirtualJoystick	= function(opts)
 	this._limitStickTravel	= opts.limitStickTravel || false
 	this._stickRadius	= opts.stickRadius !== undefined ? opts.stickRadius : 100
 	this._useCssTransform	= opts.useCssTransform !== undefined ? opts.useCssTransform : false
+	this._upAndDownOnly = opts.upAndDownOnly || false;
 
 //	this._container.style.position	= "relative"
     this._container.style.position	= "absolute"  // JOR 2-10-17: Changed this to place joystick where I want it
@@ -27,7 +28,7 @@ var VirtualJoystick	= function(opts)
 	this._touchIdx	= null;
 	
 	if(this._stationaryBase === true){
-		this._baseEl.style.display	= "";
+//		this._baseEl.style.display	= "";  JOR: I'm setting this procedurally so that the joysticks don't appear until the space is entered
 		this._baseEl.style.left		= (this._baseX - this._baseEl.width /2)+"px";
 		this._baseEl.style.top		= (this._baseY - this._baseEl.height/2)+"px";
 	}
@@ -114,7 +115,9 @@ VirtualJoystick.prototype.up	= function(){
 	var deltaX	= this.deltaX();
 	var deltaY	= this.deltaY();
 	if( deltaY >= 0 )				return false;
-	if( Math.abs(deltaX) > 2*Math.abs(deltaY) )	return false;
+	if( !this._upAndDownOnly ) {
+        if( Math.abs(deltaX) > 2*Math.abs(deltaY) )	return false;
+	}
 	return true;
 }
 VirtualJoystick.prototype.down	= function(){
@@ -122,10 +125,13 @@ VirtualJoystick.prototype.down	= function(){
 	var deltaX	= this.deltaX();
 	var deltaY	= this.deltaY();
 	if( deltaY <= 0 )				return false;
-	if( Math.abs(deltaX) > 2*Math.abs(deltaY) )	return false;
-	return true;	
+	if( !this._upAndDownOnly ) {
+	    if( Math.abs(deltaX) > 2*Math.abs(deltaY) )	return false;
+	}
+	return true;
 }
 VirtualJoystick.prototype.right	= function(){
+	if( this._upAndDownOnly )	return false;
 	if( this._pressed === false )	return false;
 	var deltaX	= this.deltaX();
 	var deltaY	= this.deltaY();
@@ -134,6 +140,7 @@ VirtualJoystick.prototype.right	= function(){
 	return true;	
 }
 VirtualJoystick.prototype.left	= function(){
+    if( this._upAndDownOnly )	return false;
 	if( this._pressed === false )	return false;
 	var deltaX	= this.deltaX();
 	var deltaY	= this.deltaY();
@@ -331,7 +338,7 @@ VirtualJoystick.prototype._buildJoystickBase	= function()
 
 	ctx.beginPath(); 
 	ctx.strokeStyle	= this._strokeStyle; 
-	ctx.lineWidth	= 2; 
+	ctx.lineWidth	= 4;
 	ctx.arc( canvas.width/2, canvas.width/2, 60, 0, Math.PI*2, true); 
 	ctx.stroke();
 	

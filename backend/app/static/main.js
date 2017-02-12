@@ -2,7 +2,8 @@ PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techn
                 "processing and machine learning. A project by the Expressive Intelligence Studio " +
                 "at UC Santa Cruz. " +
                 "<br><br>For more info, see our press kit."
-COORDINATE_MULTIPLIER = 30000000
+COORDINATE_MULTIPLIER = 150000
+DRAW_DISTANCE = 3000000000
 
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
@@ -20,7 +21,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
 	this.pathToStaticDir = pathToStaticDir;
-	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, COORDINATE_MULTIPLIER);
+	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, DRAW_DISTANCE);
 	this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 	this.scene = new THREE.Scene();
 	this.gameSquares = []; // array of games meshes
@@ -89,7 +90,8 @@ Main.prototype.init = function(){
             baseY: game.height-80,
             limitStickTravel: true,
             stickRadius: 10,
-            mouseSupport: true
+            mouseSupport: true,
+            upAndDownOnly: true
 	    });
 	    this.rightJoystick = new VirtualJoystick({
             container: document.getElementById('rightJoystickContainer'),
@@ -100,7 +102,8 @@ Main.prototype.init = function(){
             baseY: game.height-80,
             limitStickTravel: true,
             stickRadius: 10,
-            mouseSupport: true
+            mouseSupport: true,
+            upAndDownOnly: false
 	    });
 	}
 	else {
@@ -785,14 +788,23 @@ Main.prototype.readGames = function(pathToStaticDir){
 
 	$("#gLaunch").on("click", function(){
 	    enterSpace();
+	    backgroundAudio = document.getElementById("backgroundAudio");
+	    if (!backgroundAudio.currentTime && !backgroundAudio.paused){
+	        // Somehow a click was registered on a browser that does not support autoplay (whereas
+	        // a touch event would be expected instead), so we need to manually play here as well
+	        backgroundAudio.play();
+	    }
 	});
 
 	$("#gLaunch").on("touchend", function(){
 	    // Audio autoplay doesn't work on mobile browsers -- audio can only play
 	    // following a user interaction
-        document.getElementById("backgroundAudio").play();
+	    backgroundAudio = document.getElementById("backgroundAudio");
+        backgroundAudio.play();
 	    enterSpace();
 		$('#myModal').modal('toggle');
+		game.leftJoystick._baseEl.style.display	= "";
+	    game.rightJoystick._baseEl.style.display = "";
 	});
 
 	$("#infoButtonHolder").on("click", function(){
