@@ -800,7 +800,8 @@ Main.prototype.findGameID = function(v){
 	for(var i = 0; i < games.length; i++){
 		var g = games[i];
 		// Make sure we don't reselect the current game
-		if (g.id !== this.selected.id) {
+		selectedGameID = (this.selected !== null) ? this.selected.id : -1;
+		if (g.id !== selectedGameID) {
             distanceToG = g.distanceTo(v);
             if (distanceToG < distanceToClosestHit) {
                 closestHit = g;
