@@ -1,7 +1,10 @@
-COORDINATE_MULTIPLIER = 90000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
+COORDINATE_MULTIPLIER = 9000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
 MOBILE_VELOCITY = 175;
+// These define how forgiving we are about clicks being slightly off from the actual game object
+GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN = 100;
+GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN = 175;
 
 ACTION = {
 	TWITTER_CLICK: 't',
@@ -94,6 +97,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.rightArrow = false;
 	this.upArrow = false;
 	this.downArrow = false;
+	this.gameSelectionClickCushion = undefined;  // Gets set below after check for touchscreen
 	this.selectionLoc = new THREE.Vector2(0, 0);
 	this.gamesLoaded = 0;  // Tracks the number of games that have been loaded in
 	this.mousePos = new THREE.Vector2(0, 0); // 2d vector tracking mouse position
@@ -137,6 +141,7 @@ Main.prototype.init = function(){
 	this.renderer.setClearColor(0x000000, 1.0);
 	this.renderer.clear();
 	if('createTouch' in document) {
+	    this.gameSelectionClickCushion = GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN
         this.leftJoystick = new VirtualJoystick({
             container: document.getElementById('leftJoystickContainer'),
             strokeStyle: 'white',
@@ -163,6 +168,7 @@ Main.prototype.init = function(){
 	    });
 	}
 	else {
+	    this.gameSelectionClickCushion = GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN
 	    // No joysticks needed, but create some prototypes that will act like the
 	    // joysticks so that we can still call their methods as needed without
 	    // having to check whether they exist each time
@@ -216,10 +222,14 @@ Main.prototype.init = function(){
 		that.mousePos.y = e.pageY;
 	});
 	document.addEventListener("mouseup", function(e){
-		if(that.closedModal && !that.isAnimating){
+		checkForGameSelection(e);
+	});
+
+	function checkForGameSelection(e) {
+	    if(that.closedModal && !that.isAnimating){
 			if(e.which === 1){
-				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50 
-					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta) 
+				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
+					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
 					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
 					that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
 					that.rayVector.sub(that.camera.position).normalize();
@@ -228,7 +238,7 @@ Main.prototype.init = function(){
 					var intersections = raycaster.intersectObjects(that.gameSquares);
 					raycaster = new THREE.Raycaster();
 					raycaster.far = 5000;
-					raycaster.params.PointCloud.threshold = 50;
+					raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
 					raycaster.ray.set(that.camera.position, that.rayVector);
 					intersections = raycaster.intersectObjects([that.particles]);
 					var point = (intersections[0] !== undefined) ? intersections[0] : null;
@@ -254,7 +264,9 @@ Main.prototype.init = function(){
 				that.rightMouseDown = false;
 			}
 		}
-	});
+	}
+
+
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
 	$("#wikiPanel").on("click", function(){
 		if(globalLogger) globalLogger.logAction(ACTION.WIKI_CLICK, that.selected.id);
@@ -780,16 +792,21 @@ Main.prototype.pushPan = function(pushX, pushY){
 	this.camera.translateY(pushY);
 };
 
-// Find game, given a vector of its position
+// Retrieve the ID of the closest game to the intersected point cloud
 Main.prototype.findGameID = function(v){
 	var games = this.particles.geometry.vertices;
+	var closestHit = undefined;
+	var distanceToClosestHit = Infinity;
 	for(var i = 0; i < games.length; i++){
 		var g = games[i];
-		if(g.distanceTo(v) < 50){
-			return g.id;
+		distanceToG = g.distanceTo(v);
+		if (distanceToG < distanceToClosestHit) {
+		    closestHit = g;
+		    distanceToClosestHit = distanceToG;
 		}
 	}
-	alert("game not found");
+	if (closestHit !== undefined) {return closestHit.id}
+	alert("Error: Raycast vector intersected a nonexistent game. Please restart the application.");
 	return -1;
 };
 
