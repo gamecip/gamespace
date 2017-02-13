@@ -1,5 +1,19 @@
 {
- "name": "App",
+ "name": "GameSpace",
+ "author": "Expressive Intelligence Studio",
+ "description": "An explorable visualization of the videogame medium as a 3D space.",
+ "version": "0.8.0.0",
+ "manifest_version": 1,
+ "app": {
+   "urls": [
+     "http://gamecip-projects.soe.ucsc.edu/gamespace"
+   ],
+   "launch": {
+     "web_url": "http://gamecip-projects.soe.ucsc.edu/gamespace"
+   }
+ },
+ "display":      "fullscreen",
+ "orientation":  "landscape"
  "icons": [
   {
    "src": "\/android-icon-36x36.png",
