@@ -224,11 +224,7 @@ Main.prototype.init = function(){
 		that.mousePos.y = e.pageY;
 	});
 	document.addEventListener("mouseup", function(e){
-		checkForGameSelection(e);
-	});
-
-	function checkForGameSelection(e) {
-	    if(that.closedModal && !that.isAnimating){
+		if(that.closedModal && !that.isAnimating){
 	        var madeNewSelection = false;
 			if(e.which === 1){
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
@@ -258,18 +254,16 @@ Main.prototype.init = function(){
 						that.selectedModel.visible = false;
 						that.selectedModel.position.copy(that.selected.position);
 						madeNewSelection = true;
+						if('createTouch' in document) {
+						    // Because audio is ridiculous on mobile browsers, we have to do this
+						    // hacky thing to bind a silent audio play to a touch event, which somehow
+						    // allows the actual play event that we want to happen later to play
+                            var gameSelectionChime = document.getElementById("gameSelectionSound");
+                            gameSelectionChime.muted = true;
+                            gameSelectionChime.play();
+						}
 						//console.log(that.selected.position);
 					}
-					// TODO FINISH THIS OUT
-//                // If we didn't select a new game, and we're currently still tied to a selection,
-//                // then that means the user just clicked away from the selected game, which we
-//                // should recognize as a deselection move; first, though, let's make sure the
-//                // click was sufficiently far from the selected game (otherwise it could have been
-//                // an attempted icon click, e.g., the Wikipedia icon)
-//                if ( !madeNewSelection && this.selected !== null) {
-//
-//                    deselectGame()
-//                }
 				}
 				// release panning
 				that.leftMouseDown = false;
@@ -278,7 +272,60 @@ Main.prototype.init = function(){
 				that.rightMouseDown = false;
 			}
 		}
-	}
+	});
+
+//	function checkForGameSelection(e) {
+//	    if(that.closedModal && !that.isAnimating){
+//	        var madeNewSelection = false;
+//			if(e.which === 1){
+//				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
+//					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
+//					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
+//					that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
+//					that.rayVector.sub(that.camera.position).normalize();
+//					var raycaster = new THREE.Raycaster();
+//					raycaster.ray.set(that.camera.position, that.rayVector);
+//					var intersections = raycaster.intersectObjects(that.gameSquares);
+//					raycaster = new THREE.Raycaster();
+//					raycaster.far = 5000;
+//					raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
+//					raycaster.ray.set(that.camera.position, that.rayVector);
+//					intersections = raycaster.intersectObjects([that.particles]);
+//					var point = (intersections[0] !== undefined) ? intersections[0] : null;
+//					if(point !== null){
+//						var id = that.findGameID(point.point);
+//						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
+//						that.selected = that.squareHash[id];
+//						that.hasRightPressed = false;
+//						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
+//						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
+//						$("#gameTitleP").attr("style", "display: none;");
+//						that.isAnimating = true;
+//						that.displayPanels(false);
+//						that.selectedModel.visible = false;
+//						that.selectedModel.position.copy(that.selected.position);
+//						madeNewSelection = true;
+//						//console.log(that.selected.position);
+//					}
+//					// TODO FINISH THIS OUT
+////                // If we didn't select a new game, and we're currently still tied to a selection,
+////                // then that means the user just clicked away from the selected game, which we
+////                // should recognize as a deselection move; first, though, let's make sure the
+////                // click was sufficiently far from the selected game (otherwise it could have been
+////                // an attempted icon click, e.g., the Wikipedia icon)
+////                if ( !madeNewSelection && this.selected !== null) {
+////
+////                    deselectGame()
+////                }
+//				}
+//				// release panning
+//				that.leftMouseDown = false;
+//			}
+//			if(e.which === 3){
+//				that.rightMouseDown = false;
+//			}
+//		}
+//	}
 
 
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
@@ -503,7 +550,7 @@ Main.prototype.update = function(dt){
 				this.pushRotateCamera(xMovement, yMovement, pof, 50);
 
 			}
-			if(this.leftArrow ||
+			if( this.leftArrow ||
 			    this.rightArrow ||
 			    this.upArrow ||
 			    this.downArrow ||
@@ -669,6 +716,7 @@ Main.prototype.animating = function(){
 		// Exit thingy if both thingies happen
 	} else if(this.camera.position.distanceTo(this.selected.position) < 575  + this.camVel && Math.abs(vDiff) < 0.005 && Math.abs(diffAngle) < 0.005){
 		var gameSelectionChime = document.getElementById("gameSelectionSound");
+		gameSelectionChime.muted = false;
         gameSelectionChime.play();
 		this.isAnimating = false;
 		this.fTrg = true;
@@ -988,12 +1036,17 @@ function enterSpace() {
     document.getElementById("toggleOffSound").volume = 0.35;
     document.getElementById("iconClickSound").volume = 0.15;
     document.getElementById("frameCloseSound").volume = 0.25;
-    game.closedModal = true;
     $("#gameTitleP").attr("style", "display: block;");
     $("#paneHolder").attr("style", "display: block;");
     document.getElementById("infoButtonHolder").style.display = "block";
     document.getElementById("controllerButtonHolder").style.display = "block";
     $("#gLaunch").attr("style", "display: none;");
+    // Lock up the controls for a half second, so new users aren't immediately disoriented
+    // after accidentally submitting control inputs (more commonly, a touch event will be
+    // registered by mobile users for clicking on the 'Begin' button, which may cause a
+    // nearby game to be immediately selected -- this happens whenever the touch event outlasts
+    // the time it takes to set game.closedModal to 'true' without using a setTimeout call)
+    setTimeout(function(){ game.closedModal = true; }, 500);
 }
 
 // Listener for deselecting objects
