@@ -799,10 +799,13 @@ Main.prototype.findGameID = function(v){
 	var distanceToClosestHit = Infinity;
 	for(var i = 0; i < games.length; i++){
 		var g = games[i];
-		distanceToG = g.distanceTo(v);
-		if (distanceToG < distanceToClosestHit) {
-		    closestHit = g;
-		    distanceToClosestHit = distanceToG;
+		// Make sure we don't reselect the current game
+		if (g.id !== this.selected.id) {
+            distanceToG = g.distanceTo(v);
+            if (distanceToG < distanceToClosestHit) {
+                closestHit = g;
+                distanceToClosestHit = distanceToG;
+		    }
 		}
 	}
 	if (closestHit !== undefined) {return closestHit.id}
@@ -1099,7 +1102,7 @@ function showResponse(response) {
 		$dialog.dialog('open');
 	}
 	else {
-		alert("No Youtube videos were found for this game.");
+		console.log("Error: No Youtube videos were found for this game.");
 	}
 }
 
