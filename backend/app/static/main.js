@@ -88,10 +88,10 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.gameSquares = []; // array of games meshes
 	this.squareHash = {}; // hashing object to tie cubes to parent objects
 	this.selected; // selected game element
-	this.rightMouseDown; // is right mouse down
-	this.rightLocation = new THREE.Vector2(0, 0); // 2d vector for right mouse rotation, stores clicked position of right click
-	this.hasRightPressed = false; // has right been pressed since selection
 	this.leftMouseDown;
+	this.rightLocation = new THREE.Vector2(0, 0); // 2d vector for right mouse rotation, stores clicked position of right click
+	this.hasLeftMousePressed = false;
+	this.rightMouseDown;
 	this.filesToLoad = 0;
 	this.loadComplete = false;
 	this.leftLocation = new THREE.Vector2(0, 0);
@@ -179,7 +179,7 @@ Main.prototype.init = function(){
 	    this.rightJoystick.up = this.rightJoystick.down = this.rightJoystick.left = this.rightJoystick.right = function () {return false};
 	}
 	// mouse button isn't down
-	this.rightMouseDown = false;
+	this.leftMouseDown = false;
 	// set camera position
 	this.camera.position.x = 0;
 	this.camera.position.y = 0;
@@ -200,22 +200,42 @@ Main.prototype.init = function(){
 	document.addEventListener("contextmenu", function(e){
 		e.preventDefault();
 	});
-	document.addEventListener("mousedown", function(e){
+//	document.addEventListener("mousedown", function(e){
+//		if(that.closedModal && !that.isAnimating){
+//			if(e.which === 1){
+//				// Keep track of what we're selecting
+//				that.selectionLoc.x = that.mousePos.x;
+//				that.selectionLoc.y = that.mousePos.y;
+//				// Keep track of panning
+//				that.rightMouseDown = true;
+//				that.leftLocation.x = that.mousePos.x;
+//				that.leftLocation.y = that.mousePos.y;
+//			}
+//			if(e.which === 3){
+//				that.hasLeftMousePressed = true;
+//				that.rightLocation.x = e.pageX;
+//				that.rightLocation.y = e.pageY;
+//				that.leftMouseDown = true;
+//			}
+//		}
+//	});
+    document.addEventListener("mousedown", function(e){
 		if(that.closedModal && !that.isAnimating){
-			if(e.which === 1){
+			if(e.which === 1){  // Left click
 				// Keep track of what we're selecting
 				that.selectionLoc.x = that.mousePos.x;
 				that.selectionLoc.y = that.mousePos.y;
-				// Keep track of panning
-				that.leftMouseDown = true;
-				that.leftLocation.x = that.mousePos.x;
-				that.leftLocation.y = that.mousePos.y;
-			}
-			if(e.which === 3){
-				that.hasRightPressed = true;
+				// Support mouse movement for turning
+				that.hasLeftMousePressed = true;
 				that.rightLocation.x = e.pageX;
 				that.rightLocation.y = e.pageY;
+				that.leftMouseDown = true;
+			}
+			if(e.which === 3){  // Right click
+				// Keep track of panning
 				that.rightMouseDown = true;
+				that.leftLocation.x = that.mousePos.x;
+				that.leftLocation.y = that.mousePos.y;
 			}
 		}
 	});
@@ -227,6 +247,7 @@ Main.prototype.init = function(){
 		if(that.closedModal && !that.isAnimating){
 	        var madeNewSelection = false;
 			if(e.which === 1){
+			    that.hasLeftMousePressed = false;
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
 					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
 					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
@@ -245,7 +266,6 @@ Main.prototype.init = function(){
 						var id = that.findGameID(point.point);
 						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
 						that.selected = that.squareHash[id];
-						that.hasRightPressed = false;
 						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
 						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
 						$("#gameTitleP").attr("style", "display: none;");
@@ -265,10 +285,10 @@ Main.prototype.init = function(){
 						//console.log(that.selected.position);
 					}
 				}
-				// release panning
 				that.leftMouseDown = false;
 			}
 			if(e.which === 3){
+                // release panning
 				that.rightMouseDown = false;
 			}
 		}
@@ -296,7 +316,7 @@ Main.prototype.init = function(){
 //						var id = that.findGameID(point.point);
 //						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
 //						that.selected = that.squareHash[id];
-//						that.hasRightPressed = false;
+//						that.hasLeftMousePressed = false;
 //						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
 //						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
 //						$("#gameTitleP").attr("style", "display: none;");
@@ -319,10 +339,10 @@ Main.prototype.init = function(){
 ////                }
 //				}
 //				// release panning
-//				that.leftMouseDown = false;
+//				that.rightMouseDown = false;
 //			}
 //			if(e.which === 3){
-//				that.rightMouseDown = false;
+//				that.leftMouseDown = false;
 //			}
 //		}
 //	}
@@ -376,27 +396,26 @@ Main.prototype.init = function(){
 			    that.speedBoostEngaged = true;
 			}
 			// left arrow
-			// hasRightPressed triggers an end to rotation around a selected object
-			// it has nothing to do, directly, with right arrow, but is inheriting
-			// the functionality of right mouse click
+			// hasLeftMousePressed triggers an end to rotation around a selected object
+			// it is inheriting the functionality of left mouse click
 			if(e.which === 37){
 				that.leftArrow = true;
-				that.hasRightPressed = true;
+				that.hasLeftMousePressed = true;
 			}
 			// right arrow
 			if(e.which === 39){
 				that.rightArrow = true;
-				that.hasRightPressed = true;
+				that.hasLeftMousePressed = true;
 			}
 			// up arrow
 			if(e.which === 38){
 				that.upArrow = true;
-				that.hasRightPressed = true;
+				that.hasLeftMousePressed = true;
 			}
 			// down arrow
 			if(e.which === 40){
 				that.downArrow = true;
-				that.hasRightPressed = true;
+				that.hasLeftMousePressed = true;
 			}
 		}
 	});
@@ -514,7 +533,7 @@ Main.prototype.update = function(dt){
 		var xMovement, yMovement, lookAtVec, pof;
 
 		//rotate around the selected object on update, only if the right mouse button hasn't been clicked for that object
-		if(!this.hasRightPressed && this.selected !== null && !this.isAnimating){
+		if(!this.hasLeftMousePressed && this.selected !== null && !this.isAnimating){
 			this.pushRotateCamera(0.001, 0, this.selected.position, 500);
 		}
 
@@ -525,7 +544,7 @@ Main.prototype.update = function(dt){
         }
 
 		if(this.selected === null){
-			if(this.leftMouseDown){
+			if(this.rightMouseDown){
 				var xPan = -(this.leftLocation.x - this.mousePos.x)/5;
 				var yPan = (this.leftLocation.y - this.mousePos.y)/5;
 				if(xPan > 50) xPan = 50;
@@ -535,7 +554,7 @@ Main.prototype.update = function(dt){
 				this.pushPan(xPan, yPan);
 
 			}
-			if(this.rightMouseDown){
+			if(this.leftMouseDown){
 				xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
 				yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
 				if(xMovement > 0.07) xMovement = 0.07;
@@ -576,7 +595,7 @@ Main.prototype.update = function(dt){
 			//what to do when mouse right is held down:
 			//Get force of angle "push" from difference between current mouse pos and starting mouse pos
 			//We cap the movement of it so that, when distance is increased, the rotation doesn't increase dramatically
-			if(this.rightMouseDown){
+			if(this.leftMouseDown){
 				xMovement = (this.rightLocation.x - this.mousePos.x)/10000;
 				yMovement = (this.rightLocation.y - this.mousePos.y)/10000;
 				if(xMovement > 0.1) xMovement = 0.1;
