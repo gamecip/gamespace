@@ -1,10 +1,18 @@
 PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techniques from natural language " +
                 "processing and machine learning. A project by the Expressive Intelligence Studio " +
                 "at UC Santa Cruz. " +
-                "<br><br>For more info, see our press kit."
+                "<br><br>For more info, see our press kit.";
 COORDINATE_MULTIPLIER = 150000;
 DRAW_DISTANCE = 300000;
 
+ACTION = {
+	TWITTER_CLICK: 't',
+	WIKI_CLICK: 'w',
+	YOUTUBE_CLICK: 'y',
+	GAME_CLICK: 'g',
+	MUTE_CLICK: 'm',
+	START_CLICK: 's'
+};
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
 // and Camera.getWorldDirection for viewing frustum
@@ -17,10 +25,58 @@ var GameObject = function(id, x, y, z, title, wiki, platform, year){
     this.wiki = wiki;
 };
 
+var Logger = function(hasLocalStorage, prospectiveUserID, startTime){
+	this.startTime = startTime;
+	this.actionQueue = [];
+	this.coordinateQueue= [];
+	this.hasLocalStorage = hasLocalStorage;
+	this.prospectiveUserID = prospectiveUserID;
+	if(hasLocalStorage){
+		if(!localStorage.getItem('user_id') || localStorage.getItem('user_id') === "undefined"){
+			localStorage.setItem('user_id', prospectiveUserID)
+		}
+	}
+};
+
+Logger.prototype.logCoordinates = function(px, py, pz, rx, ry, rz){
+	this.coordinateQueue.push([px, py, pz, rx, ry, rz, new Date().getTime() - this.startTime]);
+};
+
+//Game Id only used for most actions, not all
+Logger.prototype.logAction = function(action, game_id){
+	this.actionQueue.push([action, game_id, new Date().getTime() - this.startTime]);
+};
+
+Logger.prototype.flushDataToServer = function(){
+	var coords = JSON.stringify(this.coordinateQueue);
+	var actions = JSON.stringify(this.actionQueue);
+	var coordNum = this.coordinateQueue.length;
+	var actionNum = this.actionQueue.length;
+	var that = this;
+	console.log("User: " + localStorage.getItem('user_id'));
+	console.log("Pros User: " + that.prospectiveUserID);
+	console.log(coords);
+	$.post("/gamespace/log",
+		{
+			'coordinates': coords,
+			'actions': actions,
+			'user_id': that.hasLocalStorage ? localStorage.getItem('user_id') : that.prospectiveUserID
+		},function(){
+			//on success, flush coordinate queue up to previous length
+			//if failure to log, then we just push more on the next try
+			that.coordinateQueue.splice(0,coordNum);
+			that.actionQueue.splice(0, actionNum);
+		}
+	)
+};
+
 var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
 	this.pathToStaticDir = pathToStaticDir;
+	this.logFrameRate = 1;
+	this.startClicked = false;
+	this.timeSinceLog = 0;
 	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, DRAW_DISTANCE);
 	this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
 	this.scene = new THREE.Scene();
@@ -46,7 +102,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.rayVector = new THREE.Vector3(); // utility vector for raycaster
 	this.loader;
 	if(startingGameID != -1) {
-	    this.startId = startingGameID  // ID for starting game passed via link from Twitter (or the web)
+	    this.startId = startingGameID;  // ID for starting game passed via link from Twitter (or the web)
 	    this.randomStartGame = false;
 	}
 	else {
@@ -73,7 +129,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.lastFrameX = this.camera.position.x;
     this.lastFrameY = this.camera.position.y;
     this.lastFrameZ = this.camera.position.z;
-}
+};
 
 Main.prototype.init = function(){
 	this.renderer.setSize(this.width, this.height);
@@ -178,6 +234,7 @@ Main.prototype.init = function(){
 					var point = (intersections[0] !== undefined) ? intersections[0] : null;
 					if(point !== null){
 						var id = that.findGameID(point.point);
+						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
 						that.selected = that.squareHash[id];
 						that.hasRightPressed = false;
 						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
@@ -200,16 +257,19 @@ Main.prototype.init = function(){
 	});
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
 	$("#wikiPanel").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.WIKI_CLICK, that.selected.id);
 	    var iconClickSound = document.getElementById("iconClickSound");
-        iconClickSound.play()
+        iconClickSound.play();
 		that.openWiki();
 	});
 	$("#youtubePanel").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.YOUTUBE_CLICK, that.selected.id);
 	    var iconClickSound = document.getElementById("iconClickSound");
-        iconClickSound.play()
+        iconClickSound.play();
 		that.googleApiClientReady();
 	});
 	$("#twitterPanel").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.TWITTER_CLICK, that.selected.id);
 	    var iconClickSound = document.getElementById("iconClickSound");
         iconClickSound.play();
 	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20");
@@ -381,7 +441,7 @@ Main.prototype.init = function(){
 		that.width = window.innerWidth;
 		that.height = window.innerHeight;
 	}, false);
-}
+};
 
 Main.prototype.displayPanels = function(on){
 	if(on){
@@ -395,7 +455,7 @@ Main.prototype.displayPanels = function(on){
 	}
 };
 
-Main.prototype.update = function(){
+Main.prototype.update = function(dt){
 	if(this.loadComplete){
 
 		var xMovement, yMovement, lookAtVec, pof;
@@ -501,6 +561,8 @@ Main.prototype.update = function(){
         this.cameraUpdate();
         // If the camera has moved its position or changed its angle, then
         // render the scene again
+		if(globalLogger)
+			this.timeSinceLog += dt;
         if(
             this.lastFrameX !== this.camera.position.x ||
             this.lastFrameY !== this.camera.position.y ||
@@ -510,6 +572,17 @@ Main.prototype.update = function(){
             this.rightJoystick.left() ||
             this.rightJoystick.right()
         ) {
+			if(globalLogger && this.startClicked && this.timeSinceLog >= 1000 / this.logFrameRate){
+				//console.log("log run t: "+ this.timeSinceLog);
+				this.timeSinceLog = 0;
+				globalLogger.logCoordinates(this.camera.position.x,
+					this.camera.position.y,
+					this.camera.position.z,
+					this.camera.rotation.x,
+					this.camera.rotation.y,
+					this.camera.rotation.z
+				)
+			}
             this.renderer.render(this.scene, this.camera);
         }
         // Save the position of the camera on this frame (so that we can avoid
@@ -855,6 +928,8 @@ Main.prototype.readGames = function(pathToStaticDir){
 };
 
 function enterSpace() {
+	that.startClicked = true;
+	if(globalLogger) globalLogger.logAction(ACTION.START_CLICK);
     var beginChime = document.getElementById("beginChime");
     beginChime.play();
     document.getElementById("gameSelectionSound").volume = 0.27;

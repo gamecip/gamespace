@@ -27,7 +27,7 @@
         <script src="https://apis.google.com/js/client.js"></script>
         <script src="{{ url_for('static', filename = 'TrackballControls.js') }}"></script>
         <script src="{{ url_for('static', filename = 'bootstrap.js') }}"></script>
-        <script src="{{ url_for('static', filename = 'virtualjoystick.js') }}"></script>
+        <!-- <script src="{{ url_for('static', filename = 'virtualjoystick.js') }}"></script> -->
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'jquery-ui.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename = 'bootstrap-theme.min.css') }}">
@@ -143,7 +143,7 @@
 		</style>
 
 	</head>
-	<body style="background-color: #000000; position:absolute;">
+	<body data-user-id="{{ pros_user_id }}" style="background-color: #000000; position:absolute;">
         <!-- Load in audio files -->
         <audio id="backgroundAudio" autoplay="autoplay" loop>
           <source src="{{ url_for('static', filename = 'background.mp3') }}" />
@@ -226,55 +226,85 @@
         <div id="rightJoystickContainer" style="position:absolute;z-index:9998;left:0"></div>
         <div id="mainWindow"></div>
 	    <script>
-	    // Boot up GameSpace
-		var game;
-		$(document).ready(function(){
-			// Allow any origin
-			THREE.ImageUtils.crossOrigin = '';
-			// Create main and initialize
-			PATH_TO_STATIC_FOLDER = "{{ url_for('static', filename = '') }}";
-			game = new Main(window.innerWidth, window.innerHeight, PATH_TO_STATIC_FOLDER, {{ starting_game_id }});
-			game.init();
-			// Update loop
-			function gameUpdate(){
-				game.update();
-				window.requestAnimationFrame(gameUpdate, game.renderer.domElement);
-			}
-			gameUpdate();
-		});
-		// Hook up play/pause audio control
-		var backgroundAudio = document.getElementById('backgroundAudio');
-		var gameSelectionSound = document.getElementById('gameSelectionSound');
-		var beginChime = document.getElementById('beginChime');
-		var toggleOnSound = document.getElementById('toggleOnSound');
-		var toggleOffSound = document.getElementById('toggleOffSound');
-		var iconClickSound = document.getElementById('iconClickSound');
-		var frameCloseSound = document.getElementById('frameCloseSound');
-        document.getElementById('muteButtonHolder').addEventListener('click', function (e)
-        {
-            e = e || window.event;
-            if(backgroundAudio.muted) {
-                backgroundAudio.muted = false;
-                gameSelectionSound.muted = false;
-                beginChime.muted = false;
-                toggleOnSound.muted = false;
-                toggleOffSound.muted = false;
-                iconClickSound.muted = false;
-                frameCloseSound.muted = false;
-                document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOnIcon.png') }}";
+	        // Boot up GameSpace
+            var startTime = new Date().getTime();
+            var game;
+            var globalLogger;
+            var time;
+            $(document).ready(function(){
+                // Allow any origin
+                THREE.ImageUtils.crossOrigin = '';
+                PATH_TO_STATIC_FOLDER = "{{ url_for('static', filename = '') }}";
+                //Turn on logger
+                globalLogger = new Logger(storageAvailable('localStorage'), $('body').data('user-id'), startTime);
+                setInterval(function(){
+                    console.log("Sending " + globalLogger.coordinateQueue.length + "coordinates");
+                    console.log("Sending " + globalLogger.actionQueue.length + "actions");
+                    globalLogger.flushDataToServer();
+                }, 3000);
+
+                // Create main and initialize
+                game = new Main(window.innerWidth,
+                        window.innerHeight,
+                        PATH_TO_STATIC_FOLDER,
+                        {{ starting_game_id }});
+                game.init();
+                // Update loop
+                function gameUpdate(){
+                    var now = new Date().getTime(),
+                            dt = now - (time || now);
+                    time = now;
+                    game.update(dt);
+                    window.requestAnimationFrame(gameUpdate, game.renderer.domElement);
+                }
+                gameUpdate();
+            });
+            // Hook up play/pause audio control
+            var backgroundAudio = document.getElementById('backgroundAudio');
+            var gameSelectionSound = document.getElementById('gameSelectionSound');
+            var beginChime = document.getElementById('beginChime');
+            var toggleOnSound = document.getElementById('toggleOnSound');
+            var toggleOffSound = document.getElementById('toggleOffSound');
+            var iconClickSound = document.getElementById('iconClickSound');
+            var frameCloseSound = document.getElementById('frameCloseSound');
+            document.getElementById('muteButtonHolder').addEventListener('click', function (e)
+            {
+                e = e || window.event;
+                if(backgroundAudio.muted) {
+                    backgroundAudio.muted = false;
+                    gameSelectionSound.muted = false;
+                    beginChime.muted = false;
+                    toggleOnSound.muted = false;
+                    toggleOffSound.muted = false;
+                    iconClickSound.muted = false;
+                    frameCloseSound.muted = false;
+                    document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOnIcon.png') }}";
+                }
+                else {
+                    backgroundAudio.muted = true;
+                    gameSelectionSound.muted = true;
+                    beginChime.muted = true;
+                    toggleOnSound.muted = true;
+                    toggleOffSound.muted = true;
+                    iconClickSound.muted = true;
+                    frameCloseSound.muted = true;
+                    document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOffIcon.png') }}";
+                }
+                e.preventDefault();
+            }, false);
+
+            //https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+            function storageAvailable(type){
+                try {
+                    var storage = window[type], x = '__storage_test__';
+                    storage.setItem(x, x);
+                    storage.removeItem(x);
+                    return true;
+                }
+                catch(e){
+                    return false;
+                }
             }
-            else {
-                backgroundAudio.muted = true;
-                gameSelectionSound.muted = true;
-                beginChime.muted = true;
-                toggleOnSound.muted = true;
-                toggleOffSound.muted = true;
-                iconClickSound.muted = true;
-                frameCloseSound.muted = true;
-                document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOffIcon.png') }}";
-            }
-            e.preventDefault();
-        }, false);
 		</script>
 	</body>
 <!-- <script>
