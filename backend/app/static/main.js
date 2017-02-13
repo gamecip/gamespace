@@ -964,7 +964,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 };
 
 function enterSpace() {
-	that.startClicked = true;
+	game.startClicked = true;
 	if(globalLogger) globalLogger.logAction(ACTION.START_CLICK);
     var beginChime = document.getElementById("beginChime");
     beginChime.play();
