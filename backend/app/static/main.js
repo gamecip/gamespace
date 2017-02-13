@@ -1,4 +1,4 @@
-COORDINATE_MULTIPLIER = 90000  // JOR: BEST COORDS FOR TSNE1
+COORDINATE_MULTIPLIER = 90000;  // JOR: BEST COORDS FOR TSNE1
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
 
@@ -50,32 +50,34 @@ Logger.prototype.flushDataToServer = function(){
 	var coordNum = this.coordinateQueue.length;
 	var actionNum = this.actionQueue.length;
 	var that = this;
-	console.log("User: " + localStorage.getItem('user_id'));
-	console.log("Pros User: " + that.prospectiveUserID);
-	console.log(coords);
-	$.post("/gamespace/log",
-		{
-			'coordinates': coords,
-			'actions': actions,
-			'user_id': that.hasLocalStorage ? localStorage.getItem('user_id') : that.prospectiveUserID
-		},function(){
-			//on success, flush coordinate queue up to previous length
-			//if failure to log, then we just push more on the next try
-			that.coordinateQueue.splice(0,coordNum);
-			that.actionQueue.splice(0, actionNum);
-		}
-	)
+	//console.log("User: " + localStorage.getItem('user_id'));
+	//console.log("Pros User: " + that.prospectiveUserID);
+	//console.log(coords);
+	if(coordNum || actionNum){
+		$.post("/gamespace/log",
+			{
+				'coordinates': coords,
+				'actions': actions,
+				'user_id': that.hasLocalStorage ? localStorage.getItem('user_id') : that.prospectiveUserID
+			},function(){
+				//on success, flush coordinate queue up to previous length
+				//if failure to log, then we just push more on the next try
+				that.coordinateQueue.splice(0,coordNum);
+				that.actionQueue.splice(0, actionNum);
+			}
+		)
+	}
 };
 
 var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
 	this.pathToStaticDir = pathToStaticDir;
-	this.logFrameRate = 1;
+	this.logFrameRate = 4;
 	this.startClicked = false;
 	this.timeSinceLog = 0;
 	this.camera = new THREE.PerspectiveCamera(45, w/h, 1, DRAW_DISTANCE);
-	this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+	this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true});
 	this.scene = new THREE.Scene();
 	this.gameSquares = []; // array of games meshes
 	this.squareHash = {}; // hashing object to tie cubes to parent objects
@@ -241,7 +243,7 @@ Main.prototype.init = function(){
 						that.displayPanels(false);
 						that.selectedModel.visible = false;
 						that.selectedModel.position.copy(that.selected.position);
-						console.log(that.selected.position);
+						//console.log(that.selected.position);
 					}
 				}
 				// release panning
@@ -795,7 +797,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	$('#myModal').modal({backdrop: "static", keyboard: false});
 	var that = this;
 	this.circleSprite = THREE.ImageUtils.loadTexture(pathToStaticDir + "sphere.png", undefined, function(){
-		console.log("sphere texture loaded")
+		//console.log("sphere texture loaded")
 	}, function(){
 		alert("Sphere texture failed to load");
 	});
@@ -824,7 +826,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	this.points = new THREE.Geometry();
 
 	$.getJSON("/gamespace/load_info", loadGameFiles).fail(function(){
-		console.log("Load info failed.")
+		//console.log("Load info failed.")
 	});
 
 	function loadGameFiles(data){
@@ -870,12 +872,12 @@ Main.prototype.readGames = function(pathToStaticDir){
 					function getRandomChoice(){
 						var id = Math.floor(Math.random() * (randomGameList.length - 1));
 						var randObj = that.squareHash[randomGameList[id]];
-						//if(Math.abs(randObj.position.x) > 100000 || Math.abs(randObj.position.y) > 100000 || Math.abs(randObj.position.z) > 100000) {
-						//	randomGameList.splice(randomGameList.indexOf(id), 1);
-						//	return getRandomChoice();
-						//}else{
+						if(Math.abs(randObj.position.x) > 100000 || Math.abs(randObj.position.y) > 100000 || Math.abs(randObj.position.z) > 100000) {
+							randomGameList.splice(randomGameList.indexOf(id), 1);
+							return getRandomChoice();
+						}else{
 							return randObj.id;
-						//}
+						}
 					}
 
 					if(that.randomStartGame){
@@ -897,6 +899,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	}
 
 	$("#gLaunch").on("click", function(){
+		that.startClicked = true;
 	    enterSpace();
 	    backgroundAudio = document.getElementById("backgroundAudio");
 	    if (!backgroundAudio.currentTime && !backgroundAudio.paused){
@@ -907,6 +910,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#gLaunch").on("touchend", function(){
+		that.startClicked = true;
 	    // Audio autoplay doesn't work on mobile browsers -- audio can only play
 	    // following a user interaction
 	    backgroundAudio = document.getElementById("backgroundAudio");
@@ -964,7 +968,6 @@ Main.prototype.readGames = function(pathToStaticDir){
 };
 
 function enterSpace() {
-	that.startClicked = true;
 	if(globalLogger) globalLogger.logAction(ACTION.START_CLICK);
     var beginChime = document.getElementById("beginChime");
     beginChime.play();
@@ -1013,7 +1016,7 @@ function callProgress(step){
 
 Main.prototype.handleAPILoaded2 = function(){
 	this.ready = true;
-	console.log("Search Done");
+	//console.log("Search Done");
 };
 
 function onSearchResponse(response) {

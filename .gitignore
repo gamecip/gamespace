@@ -2,3 +2,4 @@
 .idea/
 gamespace.db
 *.pyc
+secret_key
