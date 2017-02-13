@@ -5,9 +5,9 @@ from datetime import datetime
 from flask import Flask, render_template, request, session
 from flask_sqlalchemy import SQLAlchemy
 
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 # JOR: I THINK THE COMMENTED LINE NEEDS TO BE USED FOR ACTUAL DEPLOYMENT
-
 # app = Flask(__name__, static_url_path='/gamespace/static')
 app = Flask(__name__)
 filename = os.path.join(basedir, 'secret_key')
@@ -18,6 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{}'.format(os.path.join(basedir, 'gamespace.db'))
 db = SQLAlchemy(app)
+
 
 # Database Models
 class Coordinate(db.Model):
@@ -31,15 +32,18 @@ class Coordinate(db.Model):
     rot_z = db.Column(db.Float)
     timestamp = db.Column(db.Integer)
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(32))
     created_on = db.Column(db.DateTime)
 
+
 class Session(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(32), db.ForeignKey('user.id'))
     created_on = db.Column(db.DateTime)
+
 
 class Action(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -47,6 +51,7 @@ class Action(db.Model):
     action_type = db.Column(db.String(16))
     game_id = db.Column(db.String)
     timestamp = db.Column(db.Integer)
+
 
 @app.route('/gamespace')
 def home():
@@ -59,7 +64,7 @@ def home():
     db.session.commit()
     session['sid'] = db_session.id
     # Pass -1 for starting_game_id, which will cause a random game to be selected as the start point
-    return render_template('index.html', starting_game_id=-1, pros_user_id=str(uuid.uuid4()).replace('-',''))
+    return render_template('index.html', starting_game_id=-1, pros_user_id=str(uuid.uuid4()).replace('-', ''))
 
 
 @app.route('/gamespace/start=<starting_game_hashed_id>')
@@ -67,15 +72,14 @@ def home_with_specified_start_game(starting_game_hashed_id):
     """Render a GameSpace instance that starts from a specified game."""
     # Try to unhash the hashed game ID
     starting_game_unhashed_id = int(starting_game_hashed_id, 16) / 348290
-    if starting_game_unhashed_id in range(0, 11829):
-        # A valid ID was passed -- start from the specified game
-        return render_template('index.html', starting_game_id=starting_game_unhashed_id)
-    else:  # A bogus ID was passed -- start from a random game
-        return render_template('index.html', starting_game_id=-1)
+    print starting_game_unhashed_id
+    return render_template('index.html', starting_game_id=starting_game_unhashed_id)
+
 
 @app.route('/gamespace/load_info')
 def load_info():
     return json.dumps([fn for fn in os.listdir("./static/model_data") if fn.split(".")[-1] == "json"])
+
 
 @app.route('/gamespace/log', methods=['POST'])
 def log_info():
@@ -117,10 +121,8 @@ def log_info():
     return ""
 
 
-
-
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run()
 else:
     pass
 

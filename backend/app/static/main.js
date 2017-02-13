@@ -274,7 +274,7 @@ Main.prototype.init = function(){
 	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20");
 	    modifiedGameID = that.selected.id*348290;
 	    hashedGameID = modifiedGameID.toString(16);
-	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@gamespace__!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + hashedGameID + "&related=gamespace__",
+	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@flygamespace!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + hashedGameID + "&related=flygamespace",
 		window.open(
 		    url=urlString,
 		    name='_blank',
@@ -842,7 +842,8 @@ Main.prototype.readGames = function(pathToStaticDir){
 				for(var i = 0; i < data.length; i++){
 					// Set up physical game object with this ID
 					var myGame = data[i];
-					var obj = new GameObject(myGame.id,
+					var gameId = Number(myGame.id);
+					var obj = new GameObject(gameId,
 						myGame.coords[0]*coordMultiplier,
 						myGame.coords[1]*coordMultiplier,
 						myGame.coords[2]*coordMultiplier,
@@ -852,11 +853,11 @@ Main.prototype.readGames = function(pathToStaticDir){
 					var vert = new THREE.Vector3(myGame.coords[0]*coordMultiplier,
 						myGame.coords[1]*coordMultiplier,
 						myGame.coords[2]*coordMultiplier);
-					vert.id = obj.id;
-					that.squareHash[obj.id] = obj;
+					vert.id = gameId;
+					that.squareHash[gameId] = obj;
 					that.points.vertices.push(vert);
 					if(that.randomStartGame){
-						randomGameList.push(obj.id);
+						randomGameList.push(gameId);
 					}
 					that.gamesLoaded++;
 				}
@@ -879,11 +880,12 @@ Main.prototype.readGames = function(pathToStaticDir){
 							return randObj.id;
 						}
 					}
-
-					if(that.randomStartGame){
+					// We may have been given a bogus start ID in a tweetout-style URL, so we
+					// have to check its validity before going with it (and if that.startId is
+					// bogus, we'll just pick a random game)
+					if(that.randomStartGame || that.squareHash[that.startId] == undefined){
 						that.startId = getRandomChoice();
 					}
-
 					that.selected = that.squareHash[that.startId];
 					$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
 					that.selectedModel.visible = true;
@@ -903,7 +905,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    enterSpace();
 	    backgroundAudio = document.getElementById("backgroundAudio");
 	    if (!backgroundAudio.currentTime && !backgroundAudio.paused){
-	        // Somehow a click was registered on a browser that does not support autoplay (whereas
+	        // Somehow a click was registered on a browse that does not support autoplay (whereas
 	        // a touch event would be expected instead), so we need to manually play here as well
 	        backgroundAudio.play();
 	    }
