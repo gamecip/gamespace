@@ -1,10 +1,12 @@
 COORDINATE_MULTIPLIER = 9000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
-MOBILE_VELOCITY = 175;
 // These define how forgiving we are about clicks being slightly off from the actual game object
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN = 100;
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN = 190;
+STANDARD_VELOCITY = 50;
+SPEED_BOOST_VELOCITY = 250;
+MOBILE_VELOCITY = 175;
 
 ACTION = {
 	TWITTER_CLICK: 't',
@@ -227,6 +229,7 @@ Main.prototype.init = function(){
 
 	function checkForGameSelection(e) {
 	    if(that.closedModal && !that.isAnimating){
+	        var madeNewSelection = false;
 			if(e.which === 1){
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
 					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
@@ -254,8 +257,19 @@ Main.prototype.init = function(){
 						that.displayPanels(false);
 						that.selectedModel.visible = false;
 						that.selectedModel.position.copy(that.selected.position);
+						madeNewSelection = true;
 						//console.log(that.selected.position);
 					}
+					// TODO FINISH THIS OUT
+//                // If we didn't select a new game, and we're currently still tied to a selection,
+//                // then that means the user just clicked away from the selected game, which we
+//                // should recognize as a deselection move; first, though, let's make sure the
+//                // click was sufficiently far from the selected game (otherwise it could have been
+//                // an attempted icon click, e.g., the Wikipedia icon)
+//                if ( !madeNewSelection && this.selected !== null) {
+//
+//                    deselectGame()
+//                }
 				}
 				// release panning
 				that.leftMouseDown = false;
@@ -298,25 +312,21 @@ Main.prototype.init = function(){
 		if(that.closedModal && !that.isAnimating){
 			// w
 			if(e.which === 87){
-				that.cameraVel = 50;
+				that.cameraVel = STANDARD_VELOCITY;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
 			// s
 			else if (e.which === 83){
-			    that.cameraVel = -50;
+			    that.cameraVel = -STANDARD_VELOCITY;
 				if(!(that.selected == null)){
 					deselectGame();
 				}
 			}
 			// Shift
 			if(e.which === 16){
-				if(that.cameraVel == 50){
-					that.cameraVel = 250;
-				} else if(that.cameraVel == -50){
-					that.cameraVel = -250;
-				}
+			    that.speedBoostEngaged = true;
 			}
 			// left arrow
 			// hasRightPressed triggers an end to rotation around a selected object
@@ -361,11 +371,7 @@ Main.prototype.init = function(){
 
 			// shift
 			if(e.which === 16){
-				if(that.cameraVel == 250){
-					that.cameraVel = 50;
-				} else if(that.cameraVel == -250){
-					that.cameraVel = -50;
-				}
+				that.speedBoostEngaged = false;
 			}
 			// left arrow
 			if(e.which === 37){
@@ -394,58 +400,6 @@ Main.prototype.init = function(){
 		    }
 		}
 	});
-	$("#forwardButtonMobileHolder").on("mousedown", function(){
-	    if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 50;
-            if(!(that.selected == null)){
-                deselectGame();
-            }
-        }
-    });
-    $("#forwardButtonMobileHolder").on("touchstart", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 50;
-            if(!(that.selected == null)){
-                deselectGame();
-            }
-        }
-    });
-    $("#forwardButtonMobileHolder").on("mouseup", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 0;
-        }
-    });
-    $("#forwardButtonMobileHolder").on("touchend", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 0;
-        }
-    });
-    $("#backwardButtonMobileHolder").on("mousedown", function(){
-	    if(that.closedModal && !that.isAnimating){
-            that.cameraVel = -50;
-            if(!(that.selected == null)){
-                deselectGame();
-            }
-        }
-    });
-    $("#backwardButtonMobileHolder").on("touchstart", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = -50;
-            if(!(that.selected == null)){
-                deselectGame();
-            }
-        }
-    });
-    $("#backwardButtonMobileHolder").on("mouseup", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 0;
-        }
-    });
-    $("#backwardButtonMobileHolder").on("touchend", function(){
-        if(that.closedModal && !that.isAnimating){
-            that.cameraVel = 0;
-        }
-    });
     window.addEventListener("resize", function(){
         if(window.innerHeight > window.innerWidth){
             // Enforce landscape orientation
@@ -735,6 +689,10 @@ Main.prototype.cameraUpdate = function(){
         this.cameraVel = -MOBILE_VELOCITY;
         resetVel = true;
     }
+    if (this.speedBoostEngaged) {
+        if (this.cameraVel == STANDARD_VELOCITY) {this.cameraVel = SPEED_BOOST_VELOCITY};
+        if (this.cameraVel == -STANDARD_VELOCITY) {this.cameraVel = -SPEED_BOOST_VELOCITY};
+    }
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
 	cameraMovementVec.applyQuaternion( this.camera.quaternion );
 	var nextPos = new THREE.Vector3(cameraMovementVec.x + this.camera.position.x,
@@ -821,7 +779,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	this.circleSprite = THREE.ImageUtils.loadTexture(pathToStaticDir + "sphere.png", undefined, function(){
 		//console.log("sphere texture loaded")
 	}, function(){
-		console.log("Sphere texture failed to load");
+		console.log("Error: Sphere texture failed to load.");
 	});
 	// Set up absolute panes
 	var paneWidth = that.width/12;
