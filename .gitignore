@@ -3,3 +3,4 @@
 gamespace.db
 *.pyc
 secret_key
+env/
