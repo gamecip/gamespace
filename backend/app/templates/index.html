@@ -43,7 +43,7 @@
             height: 100%;
             font-family: 'Josefin Sans', sans-serif;
             text-align: center;
-            font-size: 64pt;
+            font-size: 12vw;
             font-weight: 700;
             background-color: black;
             color: white;
@@ -96,7 +96,7 @@
 		  display:none;
 		  background-color: rgba(0,0,0,0.35);
 		  font-family: 'Josefin Sans', sans-serif;
-		  font-size: 2.9vw;
+		  font-size: 5.62vh;
 		  font-weight: 700;
 		  color:#fff;
 		   -webkit-touch-callout: none;
@@ -104,7 +104,7 @@
 	       -khtml-user-select: none;
 	       -moz-user-select: none;
 	       -ms-user-select: none;
-	      text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -0.069vw 0.13809vw #000000;
+	      text-shadow: 0px 0 #000000, 0 -0px #000000, 0px 0 #000000, -0.1337vh 0.2676vh #000000;
 	      user-select: none;
 	      cursor: default;
 		  position: absolute;
@@ -200,7 +200,7 @@
         </a>
         <!-- Set up panes that will hold information about selected games -->
 		<p id="gameTitleP" style="" class="gameTitle"><b> </b></p>
-		<div style="position:absolute; display:none;" id="paneHolder"></div>
+		<div style="position:absolute; display:none; z-index:10000" id="paneHolder"></div>
 		<!--Sourcing-->
         <script src="{{ url_for('static', filename = 'game.js') }}"></script>
         <script src="{{ url_for('static', filename = 'main.js') }}"></script>

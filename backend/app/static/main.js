@@ -1,6 +1,7 @@
-COORDINATE_MULTIPLIER = 90000;  // JOR: BEST COORDS FOR TSNE1
+COORDINATE_MULTIPLIER = 90000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
+MOBILE_VELOCITY = 175;
 
 ACTION = {
 	TWITTER_CLICK: 't',
@@ -237,7 +238,7 @@ Main.prototype.init = function(){
 						that.selected = that.squareHash[id];
 						that.hasRightPressed = false;
 						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
+						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
 						$("#gameTitleP").attr("style", "display: none;");
 						that.isAnimating = true;
 						that.displayPanels(false);
@@ -715,11 +716,11 @@ Main.prototype.animating = function(){
 Main.prototype.cameraUpdate = function(){
     var resetVel = false;
     if (this.leftJoystick.up()){
-        this.cameraVel = 250;
+        this.cameraVel = MOBILE_VELOCITY;
         resetVel = true;
     }
     if (this.leftJoystick.down()){
-        this.cameraVel = -250;
+        this.cameraVel = -MOBILE_VELOCITY;
         resetVel = true;
     }
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
@@ -799,25 +800,27 @@ Main.prototype.readGames = function(pathToStaticDir){
 	this.circleSprite = THREE.ImageUtils.loadTexture(pathToStaticDir + "sphere.png", undefined, function(){
 		//console.log("sphere texture loaded")
 	}, function(){
-		alert("Sphere texture failed to load");
+		console.log("Sphere texture failed to load");
 	});
 	// Set up absolute panes
 	var paneWidth = that.width/12;
 	var paneDelta = that.width/15;
 	this.paneWidth = paneWidth;
 	this.paneDelta = paneDelta;
-    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 55.8%; left: 41.5%; width: 2.15%; height: 3.4875%; position: absolute;'>" +
+    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 55.8vh; left: 40.8vw; width: 5.5vh; height: 3.4875%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "wikipedia_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 56.02%; left: 56.212%; width: 2.43%; height: 3.627%; position: absolute;'>" +
+
+	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 56.0vh; left: 56.15vw; width: 5.75vh; height: 3.627%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "youtube_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 64.17%; left: 49.06%; width: 2.08%; height: 3.627%; position: absolute;'>" +
+	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 64vh; left: 48.66vw; width: 5.7vh; height: 3.627%; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "twitter_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
+//	positionIcons();
 	this.selectedModel = new THREE.Sprite( new THREE.SpriteMaterial({color: 0xffffff, map: that.circleSprite}));
 	this.selectedModel.scale.copy(new THREE.Vector3(100, 100, 100));
 	this.selectedModel.visible = false;
@@ -828,6 +831,17 @@ Main.prototype.readGames = function(pathToStaticDir){
 	$.getJSON("/gamespace/load_info", loadGameFiles).fail(function(){
 		//console.log("Load info failed.")
 	});
+
+	function positionIcons() {
+	    // TODO
+	    // Procedurally position the Wikipedia, YouTube, and Twitter icons
+	    document.getElementById('twitterPanel').style.left = window.innerWidth*0.49 + "px"
+        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.6) / 2 + "px"
+        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.) / 2 + "px"
+        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.5) / 2 + "px"
+        document.getElementById('twitterPanel').style.left = ((window.innerWidth*0.49) + (window.innerHeight*0.5)) / 2 + "px"
+        document.getElementById('twitterPanel').style.left = ((window.innerWidth*0.49) + (window.innerHeight*0.6)) / 2 + "px"
+	}
 
 	function loadGameFiles(data){
 		that.filesToLoad = data.length;
@@ -887,7 +901,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 						that.startId = getRandomChoice();
 					}
 					that.selected = that.squareHash[that.startId];
-					$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:2.49vw;'>" + that.selected.year + "</span></div>");
+					$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
 					that.selectedModel.visible = true;
 					that.selectedModel.position.copy(that.selected.position);
 
@@ -924,50 +938,66 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    document.getElementById("projectInfo").style.display = "block";
-	    this.toggleOn = !this.toggleOn;
-	    if(this.toggleOn == true) {
-	        var toggleSound = document.getElementById("toggleOnSound");
-	        that.closedModal = false;
-	        that.infoModalOpen = true;
-	    }
-	    else {
-	        var toggleSound = document.getElementById("toggleOffSound");
-	        that.closedModal = true;
-	        that.infoModalOpen = false;
-	    }
-        toggleSound.play();
-	    this.controlsButtonVisible = !this.controlsButtonVisible;
-	    if(this.controlsButtonVisible == true) {
-	        document.getElementById("controllerButtonHolder").style.display = "none";
-	    }
-	    else {
-	        document.getElementById("controllerButtonHolder").style.display = "block";
-	    }
+	    toggleInfoModal();
+	});
+
+	$("#infoButtonHolder").on("touchend", function(){
+	    toggleInfoModal();
 	});
 
 	$("#controllerButtonHolder").on("click", function(){
-	    this.toggleOn = !this.toggleOn;
-	    if(this.toggleOn == true) {
-	        var toggleSound = document.getElementById("toggleOnSound");
-	        that.closedModal = false;
-	        that.controllerModalOpen = true;
-	    }
-	    else {
-	        var toggleSound = document.getElementById("toggleOffSound");
-	        that.closedModal = true;
-	        that.controllerModalOpen = false;
-	    }
-        toggleSound.play();
-	    this.infoButtonVisible = !this.infoButtonVisible;
-	    if(this.infoButtonVisible == true) {
-	        document.getElementById("infoButtonHolder").style.display = "none";
-	    }
-	    else {
-	        document.getElementById("infoButtonHolder").style.display = "block";
-	    }
+	    toggleControllerModal();
+	});
+
+	$("#controllerButtonHolder").on("touchend", function(){
+	    toggleControllerModal();
 	});
 };
+
+function toggleInfoModal() {
+    document.getElementById("projectInfo").style.display = "block";
+    game.toggleOn = !game.toggleOn;
+    if(game.toggleOn == true) {
+        var toggleSound = document.getElementById("toggleOnSound");
+        game.closedModal = false;
+        game.infoModalOpen = true;
+    }
+    else {
+        var toggleSound = document.getElementById("toggleOffSound");
+        game.closedModal = true;
+        game.infoModalOpen = false;
+    }
+    toggleSound.play();
+    game.controlsButtonVisible = !game.controlsButtonVisible;
+    if(game.controlsButtonVisible == true) {
+        document.getElementById("controllerButtonHolder").style.display = "none";
+    }
+    else {
+        document.getElementById("controllerButtonHolder").style.display = "block";
+    }
+}
+
+function toggleControllerModal() {
+    game.toggleOn = !game.toggleOn;
+    if(game.toggleOn == true) {
+        var toggleSound = document.getElementById("toggleOnSound");
+        game.closedModal = false;
+        game.controllerModalOpen = true;
+    }
+    else {
+        var toggleSound = document.getElementById("toggleOffSound");
+        game.closedModal = true;
+        game.controllerModalOpen = false;
+    }
+    toggleSound.play();
+    game.infoButtonVisible = !game.infoButtonVisible;
+    if(game.infoButtonVisible == true) {
+        document.getElementById("infoButtonHolder").style.display = "none";
+    }
+    else {
+        document.getElementById("infoButtonHolder").style.display = "block";
+    }
+}
 
 function enterSpace() {
 	if(globalLogger) globalLogger.logAction(ACTION.START_CLICK);
@@ -985,8 +1015,6 @@ function enterSpace() {
     document.getElementById("infoButtonHolder").style.display = "block";
     document.getElementById("controllerButtonHolder").style.display = "block";
     $("#gLaunch").attr("style", "display: none;");
-    game.infoButtonVisible = true;
-    game.controlsButtonVisible = true;
 }
 
 // Listener for deselecting objects
@@ -1030,7 +1058,7 @@ function showResponse(response) {
     if(YT.items.length > 0){
 	    var page = "http://www.youtube.com/embed/" + YT.items[0].id.videoId;
 		var $dialog = $('<div></div>')
-	               .html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
+	               .html('<iframe style="border: 0px;" src="' + page + '" width="100%" height="100%"></iframe>')
 	               .dialog({
 	                	// title: "YouTube",
 	                	title: "",
@@ -1080,7 +1108,7 @@ Main.prototype.openWiki = function(){
 	var page = this.selected.wiki;
 	var that = this;
 	var $dialog2 = $('<div></div>')
-               .html('<iframe style="border: 0px; border-radius: 0px;" src="' + page + '" width="100%" height="100%"></iframe>')
+               .html('<iframe style="border: 0px; border-radius: 0px; z-index:10000;" src="' + page + '" width="100%" height="100%"></iframe>')
                .dialog({
                 	// title: "Wikipedia",
                 	title: "",
