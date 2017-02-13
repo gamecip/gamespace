@@ -1,4 +1,4 @@
-COORDINATE_MULTIPLIER = 9000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
+COORDINATE_MULTIPLIER = 90000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
 // These define how forgiving we are about clicks being slightly off from the actual game object
@@ -79,6 +79,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.width = w; // width of screen (713 during testing)
 	this.height = h; // height of screen (1440 during testing)
 	this.pathToStaticDir = pathToStaticDir;
+	this.touchscreen = ('createTouch' in document) ? true : false;
 	this.logFrameRate = 4;
 	this.startClicked = false;
 	this.timeSinceLog = 0;
@@ -142,7 +143,9 @@ Main.prototype.init = function(){
 	document.getElementById("mainWindow").appendChild(this.renderer.domElement);
 	this.renderer.setClearColor(0x000000, 1.0);
 	this.renderer.clear();
-	if('createTouch' in document) {
+	if (this.touchscreen) {
+	    // Switch out the controls modal for the mobile version
+	    document.getElementById("controlsModalImage").src = document.getElementById("controlsModalImage").src.replace('controls.png', 'controls_mobile.png');
 	    this.gameSelectionClickCushion = GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN
         this.leftJoystick = new VirtualJoystick({
             container: document.getElementById('leftJoystickContainer'),
@@ -274,7 +277,7 @@ Main.prototype.init = function(){
 						that.selectedModel.visible = false;
 						that.selectedModel.position.copy(that.selected.position);
 						madeNewSelection = true;
-						if('createTouch' in document) {
+						if(that.touchscreen) {
 						    // Because audio is ridiculous on mobile browsers, we have to do this
 						    // hacky thing to bind a silent audio play to a touch event, which somehow
 						    // allows the actual play event that we want to happen later to play
@@ -467,12 +470,14 @@ Main.prototype.init = function(){
 		}
 	});
     window.addEventListener("resize", function(){
-        if(window.innerHeight > window.innerWidth){
-            // Enforce landscape orientation
-            document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "flex";
-        }
-        else {
-            document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "none";
+        if (that.touchscreen) {
+            if(window.innerHeight > window.innerWidth){
+                // Enforce landscape orientation
+                document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "flex";
+            }
+            else {
+                document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "none";
+            }
         }
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
 		that.camera.updateProjectionMatrix();
@@ -482,7 +487,7 @@ Main.prototype.init = function(){
 		that.renderer.render(that.scene, that.camera);
 		// Update joystick positions (easiest way is to just destroy the current ones and build
         // new ones)
-        if('createTouch' in document) {
+        if(that.touchscreen) {
             that.leftJoystick.destroy();
             that.rightJoystick.destroy();
             that.leftJoystick = new VirtualJoystick({
@@ -759,6 +764,10 @@ Main.prototype.cameraUpdate = function(){
     if (this.speedBoostEngaged) {
         if (this.cameraVel == STANDARD_VELOCITY) {this.cameraVel = SPEED_BOOST_VELOCITY};
         if (this.cameraVel == -STANDARD_VELOCITY) {this.cameraVel = -SPEED_BOOST_VELOCITY};
+    }
+    else {
+        if (this.cameraVel == SPEED_BOOST_VELOCITY) {this.cameraVel = STANDARD_VELOCITY};
+        if (this.cameraVel == -SPEED_BOOST_VELOCITY) {this.cameraVel = -STANDARD_VELOCITY};
     }
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
 	cameraMovementVec.applyQuaternion( this.camera.quaternion );

@@ -184,7 +184,8 @@
           <source src="{{ url_for('static', filename = 'frameClose.mp3') }}" />
         </audio>
         <div id="overlayToEnforceLandscapeOrientation" style="z-index:9999">
-            Please rotate your device (or resize your window) into a landscape orientation.
+            <!--Please rotate your device (or resize your window) into a landscape orientation.-->
+            <img id="mobileControls" src="{{ url_for('static', filename = 'mobile_portrait_orientation_screen.png') }}" style="height:80%;width:80%">
         </div>
         <!-- Prepare play/pause audio control -->
         <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:14.9945px;padding-top:14.9945px;padding-right:9.5px;color:transparent;z-index:9999;">
@@ -235,7 +236,10 @@
 		  <div class="modal-dialog" style="margin-top: 5%;">
 		    <div class="modal-content">
 		      <div class="modal-body">
-				  <img src="{{ url_for('static', filename = 'controls.png') }}" style="height:70%;">
+                  <!-- The source for this image will be procedurally changed (by simple string replacement) to the
+                  mobile overlay if a touchscreen device is detected (so be wary of changing the filename without
+                  also updating main.js) -->
+				  <img id="controlsModalImage" src="{{ url_for('static', filename = 'controls.png') }}" style="height:70%;">
 		      </div>
 		      <div class="modal-footer"></div>
 		    </div>
