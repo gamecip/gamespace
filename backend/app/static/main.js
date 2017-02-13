@@ -1,9 +1,6 @@
-PROJECT_INFO =  "The videogame medium as a 3D explorable space. Enabled by techniques from natural language " +
-                "processing and machine learning. A project by the Expressive Intelligence Studio " +
-                "at UC Santa Cruz. " +
-                "<br><br>For more info, see our press kit."
-COORDINATE_MULTIPLIER = 150000
-DRAW_DISTANCE = 3000000000
+COORDINATE_MULTIPLIER = 90000  // JOR: BEST COORDS FOR TSNE1
+// COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
+DRAW_DISTANCE = 3000000
 
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
@@ -375,11 +372,51 @@ Main.prototype.init = function(){
         }
     });
     window.addEventListener("resize", function(){
+        if(window.innerHeight > window.innerWidth){
+            // Enforce landscape orientation
+            document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "flex";
+        }
+        else {
+            document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "none";
+        }
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
 		that.camera.updateProjectionMatrix();
 		that.renderer.setSize( window.innerWidth, window.innerHeight);
 		that.width = window.innerWidth;
 		that.height = window.innerHeight;
+		that.renderer.render(that.scene, that.camera);
+		// Update joystick positions (easiest way is to just destroy the current ones and build
+        // new ones)
+        if('createTouch' in document) {
+            that.leftJoystick.destroy();
+            that.rightJoystick.destroy();
+            that.leftJoystick = new VirtualJoystick({
+                container: document.getElementById('leftJoystickContainer'),
+                strokeStyle: 'white',
+                mouseSupport: true,
+                stationaryBase: true,
+                baseX: 80,
+                baseY: game.height-80,
+                limitStickTravel: true,
+                stickRadius: 10,
+                mouseSupport: true,
+                upAndDownOnly: true
+            });
+            that.rightJoystick = new VirtualJoystick({
+                container: document.getElementById('rightJoystickContainer'),
+                strokeStyle: 'white',
+                mouseSupport: true,
+                stationaryBase: true,
+                baseX: game.width-80,
+                baseY: game.height-80,
+                limitStickTravel: true,
+                stickRadius: 10,
+                mouseSupport: true,
+                upAndDownOnly: false
+            });
+            that.leftJoystick._baseEl.style.display	= "";
+	        that.rightJoystick._baseEl.style.display = "";
+        }
 	}, false);
 }
 
@@ -808,8 +845,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    $("#projectInfo").attr("style", "font-size:22pt;border:0;outline:0;width:61%;");
-	    $("#projectInfo").html(PROJECT_INFO);
+	    document.getElementById("projectInfo").style.display = "block";
 	    this.toggleOn = !this.toggleOn;
 	    if(this.toggleOn == true) {
 	        var toggleSound = document.getElementById("toggleOnSound");
@@ -824,10 +860,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.controlsButtonVisible = !this.controlsButtonVisible;
 	    if(this.controlsButtonVisible == true) {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:none;");
+	        document.getElementById("controllerButtonHolder").style.display = "none";
 	    }
 	    else {
-	        $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:block;");
+	        document.getElementById("controllerButtonHolder").style.display = "block";
 	    }
 	});
 
@@ -846,10 +882,10 @@ Main.prototype.readGames = function(pathToStaticDir){
         toggleSound.play();
 	    this.infoButtonVisible = !this.infoButtonVisible;
 	    if(this.infoButtonVisible == true) {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:none;");
+	        document.getElementById("infoButtonHolder").style.display = "none";
 	    }
 	    else {
-	        $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:block;");
+	        document.getElementById("infoButtonHolder").style.display = "block";
 	    }
 	});
 };
@@ -866,8 +902,8 @@ function enterSpace() {
     game.closedModal = true;
     $("#gameTitleP").attr("style", "display: block;");
     $("#paneHolder").attr("style", "display: block;");
-    $("#infoButtonHolder").attr("style", "position:absolute;padding-left:49.97840411522634px;padding-top:13.99165px;padding-right:6.995825px;color:transparent;z-index:9998;cursor:pointer;display:block;");
-    $("#controllerButtonHolder").attr("style", "position:absolute;padding-left:82.95666558641976px;padding-top:15.992513528806585px;color:transparent;z-index:9997;cursor:pointer;display:block;");
+    document.getElementById("infoButtonHolder").style.display = "block";
+    document.getElementById("controllerButtonHolder").style.display = "block";
     $("#gLaunch").attr("style", "display: none;");
     game.infoButtonVisible = true;
     game.controlsButtonVisible = true;
