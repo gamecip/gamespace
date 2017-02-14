@@ -110,6 +110,14 @@ VirtualJoystick.touchScreenAvailable	= function()
 VirtualJoystick.prototype.deltaX	= function(){ return this._stickX - this._baseX;	}
 VirtualJoystick.prototype.deltaY	= function(){ return this._stickY - this._baseY;	}
 
+VirtualJoystick.prototype.anyInput = function(){
+    if (this.up()) {return true};
+    if (this.down()) {return true};
+    if (this.left()) {return true};
+    if (this.right()) {return true};
+    return false;
+}
+
 VirtualJoystick.prototype.up	= function(){
 	if( this._pressed === false )	return false;
 	var deltaX	= this.deltaX();
