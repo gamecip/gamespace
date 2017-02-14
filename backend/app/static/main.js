@@ -101,7 +101,6 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.upArrow = false;
 	this.downArrow = false;
 	this.gameSelectionClickCushion = undefined;  // Gets set below after check for touchscreen
-	this.selectionLoc = new THREE.Vector2(0, 0);
 	this.gamesLoaded = 0;  // Tracks the number of games that have been loaded in
 	this.mousePos = new THREE.Vector2(0, 0); // 2d vector tracking mouse position
 	this.xAngle = 0; // track rotation of camera x
@@ -132,7 +131,7 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.paneWidth = 0;
 	this.infoButtonVisible = false;
 	this.controlsButtonVisible = false;
-	this.toggleOn = true;
+	this.toggleOn = false;
 	this.lastFrameX = this.camera.position.x;
     this.lastFrameY = this.camera.position.y;
     this.lastFrameZ = this.camera.position.z;
@@ -211,11 +210,8 @@ Main.prototype.init = function(){
 		e.preventDefault();
 	});
     document.addEventListener("mousedown", function(e){
-		if(that.closedModal && !that.isAnimating){
+		if(that.closedModal && !that.isAnimating && !that.touchscreen){
 			if(e.which === 1){  // Left click
-				// Keep track of what we're selecting
-				that.selectionLoc.x = that.mousePos.x;
-				that.selectionLoc.y = that.mousePos.y;
 				// Support mouse movement for turning
 				that.hasLeftMousePressed = true;
 				that.rightLocation.x = e.pageX;
@@ -231,61 +227,110 @@ Main.prototype.init = function(){
 		}
 	});
 	document.addEventListener("mousemove", function(e){
-		that.mousePos.x = e.pageX;
-		that.mousePos.y = e.pageY;
+	    if (!that.touchscreen) {
+	        that.mousePos.x = e.pageX;
+		    that.mousePos.y = e.pageY;
+	    }
 	});
 	document.addEventListener("mouseup", function(e){
+	    if (!that.touchscreen) {
+	        if(that.closedModal && !that.moving()){
+                var madeNewSelection = false;
+                if(e.which === 1){
+                    if(
+                        (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
+                        || (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
+                        that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
+                        that.rayVector.sub(that.camera.position).normalize();
+                        var raycaster = new THREE.Raycaster();
+                        raycaster.ray.set(that.camera.position, that.rayVector);
+                        var intersections = raycaster.intersectObjects(that.gameSquares);
+                        raycaster = new THREE.Raycaster();
+                        raycaster.far = 5000;
+                        raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
+                        raycaster.ray.set(that.camera.position, that.rayVector);
+                        intersections = raycaster.intersectObjects([that.particles]);
+                        var point = (intersections[0] !== undefined) ? intersections[0] : null;
+                        if(point !== null){
+                            var id = that.findGameID(point.point);
+                            if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
+                            that.selected = that.squareHash[id];
+                            that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
+                            $("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
+                            $("#gameTitleP").attr("style", "display: none;");
+                            that.isAnimating = true;
+                            that.displayPanels(false);
+                            that.selectedModel.visible = false;
+                            that.selectedModel.position.copy(that.selected.position);
+                            madeNewSelection = true;
+    //						if(that.touchscreen) {
+    //						    // Because audio is ridiculous on mobile browsers, we have to do this
+    //						    // hacky thing to bind a silent audio play to a touch event, which somehow
+    //						    // allows the actual play event that we want to happen later to play
+    //                            var gameSelectionChime = document.getElementById("gameSelectionSound");
+    //                            gameSelectionChime.muted = true;
+    //                            gameSelectionChime.play();
+    //						}
+                        }
+                    }
+                }
+            if(e.which === 1) {
+                that.hasLeftMousePressed = false;
+                that.leftMouseDown = false;
+            }
+            if(e.which === 3){
+                // release panning
+                that.rightMouseDown = false;
+            }
+            }
+	    }
+	});
+
+   document.addEventListener('touchstart', function(e) {
+      game.mousePos.x = e.changedTouches[0].pageX;
+      game.mousePos.y = e.changedTouches[0].pageY;
+    });
+
+    document.addEventListener('touchmove', function(e) {
+      game.mousePos.x = e.changedTouches[0].pageX;
+      game.mousePos.y = e.changedTouches[0].pageY;
+    });
+
+	document.addEventListener("touchend", function(e){
 		if(that.closedModal && !that.moving()){
-	        var madeNewSelection = false;
-			if(e.which === 1){
-				console.log('beginning raycast');
-				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
-					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
-					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
-					that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
-					that.rayVector.sub(that.camera.position).normalize();
-					var raycaster = new THREE.Raycaster();
-					raycaster.ray.set(that.camera.position, that.rayVector);
-					var intersections = raycaster.intersectObjects(that.gameSquares);
-					raycaster = new THREE.Raycaster();
-					raycaster.far = 5000;
-					raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
-					raycaster.ray.set(that.camera.position, that.rayVector);
-					intersections = raycaster.intersectObjects([that.particles]);
-					var point = (intersections[0] !== undefined) ? intersections[0] : null;
-					if(point !== null){
-						var id = that.findGameID(point.point);
-						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
-						that.selected = that.squareHash[id];
-						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
-						$("#gameTitleP").attr("style", "display: none;");
-						that.isAnimating = true;
-						that.displayPanels(false);
-						that.selectedModel.visible = false;
-						that.selectedModel.position.copy(that.selected.position);
-						madeNewSelection = true;
-						if(that.touchscreen) {
-						    // Because audio is ridiculous on mobile browsers, we have to do this
-						    // hacky thing to bind a silent audio play to a touch event, which somehow
-						    // allows the actual play event that we want to happen later to play
-                            var gameSelectionChime = document.getElementById("gameSelectionSound");
-                            gameSelectionChime.muted = true;
-                            gameSelectionChime.play();
-						}
-						//console.log(that.selected.position);
-					}
-				}
-			}
-		if(e.which === 1) {
-		    that.hasLeftMousePressed = false;
-	        that.leftMouseDown = false;
-		}
-        if(e.which === 3){
-            // release panning
-            that.rightMouseDown = false;
+            if((  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
+                || (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
+                that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
+                that.rayVector.sub(that.camera.position).normalize();
+                var raycaster = new THREE.Raycaster();
+                raycaster.ray.set(that.camera.position, that.rayVector);
+                var intersections = raycaster.intersectObjects(that.gameSquares);
+                raycaster = new THREE.Raycaster();
+                raycaster.far = 5000;
+                raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
+                raycaster.ray.set(that.camera.position, that.rayVector);
+                intersections = raycaster.intersectObjects([that.particles]);
+                var point = (intersections[0] !== undefined) ? intersections[0] : null;
+                if(point !== null){
+                    var id = that.findGameID(point.point);
+                    if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
+                    that.selected = that.squareHash[id];
+                    that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
+                    $("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
+                    $("#gameTitleP").attr("style", "display: none;");
+                    that.isAnimating = true;
+                    that.displayPanels(false);
+                    that.selectedModel.visible = false;
+                    that.selectedModel.position.copy(that.selected.position);
+                    // Because audio is ridiculous on mobile browsers, we have to do this
+                    // hacky thing to bind a silent audio play to a touch event, which somehow
+                    // allows the actual play event that we want to happen later to play
+                    var gameSelectionChime = document.getElementById("gameSelectionSound");
+                    gameSelectionChime.muted = true;
+                    gameSelectionChime.play();
+                }
+            }
         }
-		}
 	});
 
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
@@ -479,7 +524,7 @@ Main.prototype.update = function(dt){
 			this.pushRotateCamera(0.001, 0, this.selected.position, 500);
 		}
 
-		if(!(this.selected == null)){
+		if(!(this.selected == null) && !this.isAnimating){
 		    if(this.leftJoystick.up() || this.leftJoystick.down()){
 		        deselectGame();
 		    }
@@ -534,7 +579,7 @@ Main.prototype.update = function(dt){
 				this.pushRotateCamera(xMovement, yMovement, pof, 50);
 			}
 		}else{
-			//what to do when mouse right is held down:
+			//what to do when mouse left is held down:
 			//Get force of angle "push" from difference between current mouse pos and starting mouse pos
 			//We cap the movement of it so that, when distance is increased, the rotation doesn't increase dramatically
 			if(this.leftMouseDown){
@@ -690,13 +735,15 @@ Main.prototype.animating = function(){
 
 Main.prototype.cameraUpdate = function(){
     var resetVel = false;
-    if (this.leftJoystick.up()){
-        this.cameraVel = MOBILE_VELOCITY;
-        resetVel = true;
-    }
-    if (this.leftJoystick.down()){
-        this.cameraVel = -MOBILE_VELOCITY;
-        resetVel = true;
+    if (!this.isAnimating) {
+        if (this.leftJoystick.up()){
+            this.cameraVel = MOBILE_VELOCITY;
+            resetVel = true;
+        }
+        if (this.leftJoystick.down()){
+            this.cameraVel = -MOBILE_VELOCITY;
+            resetVel = true;
+        }
     }
     if (this.speedBoostEngaged) {
         if (this.cameraVel == STANDARD_VELOCITY) {this.cameraVel = SPEED_BOOST_VELOCITY};
@@ -955,12 +1002,12 @@ Main.prototype.readGames = function(pathToStaticDir){
 };
 
 function toggleInfoModal() {
+    document.getElementById("projectInfo").style.display = "block";
     game.infoModalOpen = !game.infoModalOpen;
     if (game.controllerModalOpen) {
         $("#controlsModal").modal('hide');
     }
     game.controllerModalOpen = false;
-    document.getElementById("projectInfo").style.display = "block";
     game.toggleOn = !game.toggleOn;
     if(game.toggleOn == true) {
         var toggleSound = document.getElementById("toggleOnSound");
