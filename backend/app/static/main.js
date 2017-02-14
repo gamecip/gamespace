@@ -355,7 +355,7 @@ Main.prototype.init = function(){
 	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20");
 	    modifiedGameID = that.selected.id*348290;
 	    hashedGameID = modifiedGameID.toString(16);
-	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@flygamespace!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + hashedGameID + "&related=flygamespace",
+	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@flygamespace!%0A%0Ahttp://gamespace.io/start=" + hashedGameID + "&related=flygamespace",
 		window.open(
 		    url=urlString,
 		    name='_blank',
