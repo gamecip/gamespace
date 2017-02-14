@@ -116,14 +116,16 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	    this.randomStartGame = true;
 	}
 	this.cameraVel = 0;
+	this.infoModalOpen = false;  // Used to support escape key closing modals
+	this.controllerModalOpen = false;  // Used to support escape key closing modals
+	this.onPortraitOverlay = false;
 	this.closedModal = function() {
 	    if (!this.launched) {return false};
 	    if (this.infoModalOpen) {return false};
 	    if (this.controllerModalOpen) {return false};
+	    if (this.onPortraitOverlay) {return false};
 	    return true;
 	}
-	this.infoModalOpen = false;  // Used to support escape key closing modals
-	this.controllerModalOpen = false;  // Used to support escape key closing modals
 	this.mouseUpCounter = 0;
 	this.isAnimating = false; // Are we currently animating movement to a selection?
 	this.xAng = true;
@@ -455,9 +457,11 @@ Main.prototype.init = function(){
             if(window.innerHeight > window.innerWidth){
                 // Enforce landscape orientation
                 document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "flex";
+                game.onPortraitOverlay = true;
             }
             else {
                 document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "none";
+                game.onPortraitOverlay = false;
             }
         }
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
