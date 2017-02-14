@@ -81,6 +81,12 @@ def home_with_specified_start_game(starting_game_hashed_id):
     return render_template('index.html', starting_game_id=starting_game_unhashed_id)
 
 
+@app.route('/gamespace/FAQ')
+def forward_to_faq():
+    """Render the FAQ page."""
+    return render_template('faq.html')
+
+
 @app.route('/gamespace/faq')
 def faq():
     """Render the FAQ page."""
