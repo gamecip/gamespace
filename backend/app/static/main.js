@@ -238,6 +238,7 @@ Main.prototype.init = function(){
 		if(that.closedModal && !that.moving()){
 	        var madeNewSelection = false;
 			if(e.which === 1){
+				console.log('beginning raycast');
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
 					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
 					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
