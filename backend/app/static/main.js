@@ -1,6 +1,7 @@
 COORDINATE_MULTIPLIER = 90000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
+MAX_DISTANCE_TO_SELECT_GAME = 5000;
 // These define how forgiving we are about clicks being slightly off from the actual game object
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN = 100;
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN = 190;
@@ -254,7 +255,7 @@ Main.prototype.init = function(){
                         raycaster.ray.set(that.camera.position, that.rayVector);
                         var intersections = raycaster.intersectObjects(that.gameSquares);
                         raycaster = new THREE.Raycaster();
-                        raycaster.far = 5000;
+                        raycaster.far = MAX_DISTANCE_TO_SELECT_GAME;
                         raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
                         raycaster.ray.set(that.camera.position, that.rayVector);
                         intersections = raycaster.intersectObjects([that.particles]);
@@ -307,7 +308,7 @@ Main.prototype.init = function(){
                 raycaster.ray.set(that.camera.position, that.rayVector);
                 var intersections = raycaster.intersectObjects(that.gameSquares);
                 raycaster = new THREE.Raycaster();
-                raycaster.far = 5000;
+                raycaster.far = MAX_DISTANCE_TO_SELECT_GAME;
                 raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
                 raycaster.ray.set(that.camera.position, that.rayVector);
                 intersections = raycaster.intersectObjects([that.particles]);
