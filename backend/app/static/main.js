@@ -287,60 +287,6 @@ Main.prototype.init = function(){
 		}
 	});
 
-//	function checkForGameSelection(e) {
-//	    if(that.closedModal && !that.isAnimating){
-//	        var madeNewSelection = false;
-//			if(e.which === 1){
-//				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
-//					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
-//					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
-//					that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
-//					that.rayVector.sub(that.camera.position).normalize();
-//					var raycaster = new THREE.Raycaster();
-//					raycaster.ray.set(that.camera.position, that.rayVector);
-//					var intersections = raycaster.intersectObjects(that.gameSquares);
-//					raycaster = new THREE.Raycaster();
-//					raycaster.far = 5000;
-//					raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
-//					raycaster.ray.set(that.camera.position, that.rayVector);
-//					intersections = raycaster.intersectObjects([that.particles]);
-//					var point = (intersections[0] !== undefined) ? intersections[0] : null;
-//					if(point !== null){
-//						var id = that.findGameID(point.point);
-//						if(globalLogger) globalLogger.logAction(ACTION.GAME_CLICK, id);
-//						that.selected = that.squareHash[id];
-//						that.hasLeftMousePressed = false;
-//						that.startVector = new THREE.Vector3(that.selected.x + 500, that.selected.y, that.selected.z);
-//						$("#gameTitleP").html("<div class=gameTitleAndYear>" + that.selected.gameTitle + "<br><span style='font-size:4.83vh;'>" + that.selected.year + "</span></div>");
-//						$("#gameTitleP").attr("style", "display: none;");
-//						that.isAnimating = true;
-//						that.displayPanels(false);
-//						that.selectedModel.visible = false;
-//						that.selectedModel.position.copy(that.selected.position);
-//						madeNewSelection = true;
-//						//console.log(that.selected.position);
-//					}
-//					// TODO FINISH THIS OUT
-////                // If we didn't select a new game, and we're currently still tied to a selection,
-////                // then that means the user just clicked away from the selected game, which we
-////                // should recognize as a deselection move; first, though, let's make sure the
-////                // click was sufficiently far from the selected game (otherwise it could have been
-////                // an attempted icon click, e.g., the Wikipedia icon)
-////                if ( !madeNewSelection && this.selected !== null) {
-////
-////                    deselectGame()
-////                }
-//				}
-//				// release panning
-//				that.rightMouseDown = false;
-//			}
-//			if(e.which === 3){
-//				that.leftMouseDown = false;
-//			}
-//		}
-//	}
-
-
     // Bind functions to clicks on Wikipedia, YouTube, and Twitter icons
 	$("#wikiPanel").on("click", function(){
 		if(globalLogger) globalLogger.logAction(ACTION.WIKI_CLICK, that.selected.id);
@@ -983,7 +929,9 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
-	    toggleInfoModal();
+	    if (!game.touchscreen) {
+	        toggleInfoModal();
+	    }
 	});
 
 	$("#infoButtonHolder").on("touchend", function(){
@@ -991,11 +939,17 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#controllerButtonHolder").on("click", function(){
-	    toggleControllerModal();
+	    if (!game.touchscreen) {
+	        toggleControllerModal();
+	    }
 	});
 
 	$("#controllerButtonHolder").on("touchend", function(){
 	    toggleControllerModal();
+	});
+
+	$("#muteButtonHolder").on("touchend", function() {
+	    $("#muteButtonHolder").click();
 	});
 };
 
