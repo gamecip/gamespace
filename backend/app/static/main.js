@@ -995,9 +995,70 @@ Main.prototype.readGames = function(pathToStaticDir){
 	    toggleControllerModal();
 	});
 
-	$("#muteButtonHolder").on("touchend", function() {
-	    $("#muteButtonHolder").click();
-	});
+    // Hook up play/pause audio control
+    $("#muteButtonHolder").on("click", function(){
+	    if (!game.touchscreen) {
+	        var backgroundAudio = document.getElementById('backgroundAudio');
+            var gameSelectionSound = document.getElementById('gameSelectionSound');
+            var beginChime = document.getElementById('beginChime');
+            var toggleOnSound = document.getElementById('toggleOnSound');
+            var toggleOffSound = document.getElementById('toggleOffSound');
+            var iconClickSound = document.getElementById('iconClickSound');
+            var frameCloseSound = document.getElementById('frameCloseSound');
+            if(backgroundAudio.muted) {
+                backgroundAudio.muted = false;
+                gameSelectionSound.muted = false;
+                beginChime.muted = false;
+                toggleOnSound.muted = false;
+                toggleOffSound.muted = false;
+                iconClickSound.muted = false;
+                frameCloseSound.muted = false;
+                document.getElementById('muteButton').src = document.getElementById('muteButton').src.replace('audioOffIcon.png', 'audioOnIcon.png')
+            }
+            else {
+                backgroundAudio.muted = true;
+                gameSelectionSound.muted = true;
+                beginChime.muted = true;
+                toggleOnSound.muted = true;
+                toggleOffSound.muted = true;
+                iconClickSound.muted = true;
+                frameCloseSound.muted = true;
+                document.getElementById('muteButton').src = document.getElementById('muteButton').src.replace('audioOnIcon.png', 'audioOffIcon.png')
+            }
+	    }
+    });
+
+    $("#muteButtonHolder").on("touchend", function(){
+	    if (game.touchscreen) {
+	        var backgroundAudio = document.getElementById('backgroundAudio');
+            var gameSelectionSound = document.getElementById('gameSelectionSound');
+            var beginChime = document.getElementById('beginChime');
+            var toggleOnSound = document.getElementById('toggleOnSound');
+            var toggleOffSound = document.getElementById('toggleOffSound');
+            var iconClickSound = document.getElementById('iconClickSound');
+            var frameCloseSound = document.getElementById('frameCloseSound');
+            if(backgroundAudio.muted) {
+                backgroundAudio.muted = false;
+                gameSelectionSound.muted = false;
+                beginChime.muted = false;
+                toggleOnSound.muted = false;
+                toggleOffSound.muted = false;
+                iconClickSound.muted = false;
+                frameCloseSound.muted = false;
+                document.getElementById('muteButton').src = document.getElementById('muteButton').src.replace('audioOffIcon.png', 'audioOnIcon.png')
+            }
+            else {
+                backgroundAudio.muted = true;
+                gameSelectionSound.muted = true;
+                beginChime.muted = true;
+                toggleOnSound.muted = true;
+                toggleOffSound.muted = true;
+                iconClickSound.muted = true;
+                frameCloseSound.muted = true;
+                document.getElementById('muteButton').src = document.getElementById('muteButton').src.replace('audioOnIcon.png', 'audioOffIcon.png')
+            }
+	    }
+    });
 };
 
 function toggleInfoModal() {

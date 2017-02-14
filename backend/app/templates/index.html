@@ -188,7 +188,7 @@
             <img id="mobileControls" src="{{ url_for('static', filename = 'mobile_portrait_orientation_screen.png') }}" style="height:80%;width:80%">
         </div>
         <!-- Prepare play/pause audio control -->
-        <a href="#noscroll" id="muteButtonHolder" style="position:absolute;padding-left:14.9945px;padding-top:14.9945px;padding-right:9.5px;color:transparent;z-index:9999;">
+        <a id="muteButtonHolder" style="position:absolute;padding-left:14.9945px;padding-top:14.9945px;padding-right:9.5px;color:transparent;z-index:9999;cursor:pointer;">
             <img id="muteButton" src="{{ url_for('static', filename = 'audioOnIcon.png') }}" style="width:37.483px;">
         </a>
         <!-- Prepare info icon that will bring up title-screen modal during exploration -->
@@ -290,40 +290,6 @@
                 }
                 gameUpdate();
             });
-            // Hook up play/pause audio control
-            var backgroundAudio = document.getElementById('backgroundAudio');
-            var gameSelectionSound = document.getElementById('gameSelectionSound');
-            var beginChime = document.getElementById('beginChime');
-            var toggleOnSound = document.getElementById('toggleOnSound');
-            var toggleOffSound = document.getElementById('toggleOffSound');
-            var iconClickSound = document.getElementById('iconClickSound');
-            var frameCloseSound = document.getElementById('frameCloseSound');
-            document.getElementById('muteButtonHolder').addEventListener('click', function (e)
-            {
-                e = e || window.event;
-                if(backgroundAudio.muted) {
-                    backgroundAudio.muted = false;
-                    gameSelectionSound.muted = false;
-                    beginChime.muted = false;
-                    toggleOnSound.muted = false;
-                    toggleOffSound.muted = false;
-                    iconClickSound.muted = false;
-                    frameCloseSound.muted = false;
-                    document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOnIcon.png') }}";
-                }
-                else {
-                    backgroundAudio.muted = true;
-                    gameSelectionSound.muted = true;
-                    beginChime.muted = true;
-                    toggleOnSound.muted = true;
-                    toggleOffSound.muted = true;
-                    iconClickSound.muted = true;
-                    frameCloseSound.muted = true;
-                    document.getElementById('muteButton').src = "{{ url_for('static', filename = 'audioOffIcon.png') }}";
-                }
-                e.preventDefault();
-            }, false);
-
             //https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
             function storageAvailable(type){
                 try {
