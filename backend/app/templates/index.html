@@ -264,13 +264,15 @@
                 THREE.ImageUtils.crossOrigin = '';
                 PATH_TO_STATIC_FOLDER = "{{ url_for('static', filename = '') }}";
                 //Turn on logger
-                globalLogger = new Logger(storageAvailable('localStorage'), $('body').data('user-id'), startTime);
-                globalLogger.flushDataToServer();
-                setInterval(function(){
+                if(storageAvailable('localStorage')){
+                    globalLogger = new Logger(storageAvailable('localStorage'), $('body').data('user-id'), startTime);
+                    globalLogger.flushDataToServer();
+                    setInterval(function(){
 //                    console.log("Sending " + globalLogger.coordinateQueue.length + "coordinates");
 //                    console.log("Sending " + globalLogger.actionQueue.length + "actions");
-                    globalLogger.flushDataToServer();
-                }, 3000);
+                        globalLogger.flushDataToServer();
+                    }, 3000);
+                }
 
                 // Create main and initialize
                 game = new Main(window.innerWidth,
