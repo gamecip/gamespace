@@ -954,48 +954,40 @@ Main.prototype.readGames = function(pathToStaticDir){
 };
 
 function toggleInfoModal() {
+    game.infoModalOpen = !game.infoModalOpen;
+    if (game.controllerModalOpen) {
+        $("#controlsModal").modal('hide');
+    }
+    game.controllerModalOpen = false;
     document.getElementById("projectInfo").style.display = "block";
     game.toggleOn = !game.toggleOn;
     if(game.toggleOn == true) {
         var toggleSound = document.getElementById("toggleOnSound");
         game.closedModal = false;
-        game.infoModalOpen = true;
     }
     else {
         var toggleSound = document.getElementById("toggleOffSound");
         game.closedModal = true;
-        game.infoModalOpen = false;
     }
     toggleSound.play();
-    game.controlsButtonVisible = !game.controlsButtonVisible;
-    if(game.controlsButtonVisible == true) {
-        document.getElementById("controllerButtonHolder").style.display = "none";
-    }
-    else {
-        document.getElementById("controllerButtonHolder").style.display = "block";
-    }
 }
 
 function toggleControllerModal() {
+    game.controllerModalOpen = !game.controllerModalOpen;
+    if (game.infoModalOpen) {
+        $("#myModal").modal('hide')
+    }
+    game.infoModalOpen = false;
     game.toggleOn = !game.toggleOn;
     if(game.toggleOn == true) {
         var toggleSound = document.getElementById("toggleOnSound");
         game.closedModal = false;
-        game.controllerModalOpen = true;
     }
     else {
         var toggleSound = document.getElementById("toggleOffSound");
         game.closedModal = true;
-        game.controllerModalOpen = false;
     }
     toggleSound.play();
-    game.infoButtonVisible = !game.infoButtonVisible;
-    if(game.infoButtonVisible == true) {
-        document.getElementById("infoButtonHolder").style.display = "none";
-    }
-    else {
-        document.getElementById("infoButtonHolder").style.display = "block";
-    }
 }
 
 function enterSpace() {
