@@ -136,6 +136,13 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.lastFrameX = this.camera.position.x;
     this.lastFrameY = this.camera.position.y;
     this.lastFrameZ = this.camera.position.z;
+    this.moving = function() {
+        if (this.isAnimating) {return true};
+        if (this.cameraVel != 0) {return true};
+        if (this.leftJoystick.up()) {return true};
+        if (this.leftJoystick.down()) {return true};
+        return false;
+    }
 };
 
 Main.prototype.init = function(){
@@ -203,25 +210,6 @@ Main.prototype.init = function(){
 	document.addEventListener("contextmenu", function(e){
 		e.preventDefault();
 	});
-//	document.addEventListener("mousedown", function(e){
-//		if(that.closedModal && !that.isAnimating){
-//			if(e.which === 1){
-//				// Keep track of what we're selecting
-//				that.selectionLoc.x = that.mousePos.x;
-//				that.selectionLoc.y = that.mousePos.y;
-//				// Keep track of panning
-//				that.rightMouseDown = true;
-//				that.leftLocation.x = that.mousePos.x;
-//				that.leftLocation.y = that.mousePos.y;
-//			}
-//			if(e.which === 3){
-//				that.hasLeftMousePressed = true;
-//				that.rightLocation.x = e.pageX;
-//				that.rightLocation.y = e.pageY;
-//				that.leftMouseDown = true;
-//			}
-//		}
-//	});
     document.addEventListener("mousedown", function(e){
 		if(that.closedModal && !that.isAnimating){
 			if(e.which === 1){  // Left click
@@ -247,10 +235,9 @@ Main.prototype.init = function(){
 		that.mousePos.y = e.pageY;
 	});
 	document.addEventListener("mouseup", function(e){
-		if(that.closedModal && !that.isAnimating){
+		if(that.closedModal && !that.moving()){
 	        var madeNewSelection = false;
 			if(e.which === 1){
-			    that.hasLeftMousePressed = false;
 				if(that.mousePos.distanceTo(that.selectionLoc) < 5 && that.mousePos.y > 50
 					&& (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
 					|| (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
@@ -288,12 +275,15 @@ Main.prototype.init = function(){
 						//console.log(that.selected.position);
 					}
 				}
-				that.leftMouseDown = false;
 			}
-			if(e.which === 3){
-                // release panning
-				that.rightMouseDown = false;
-			}
+		if(e.which === 1) {
+		    that.hasLeftMousePressed = false;
+	        that.leftMouseDown = false;
+		}
+        if(e.which === 3){
+            // release panning
+            that.rightMouseDown = false;
+        }
 		}
 	});
 
