@@ -1,6 +1,7 @@
 COORDINATE_MULTIPLIER = 90000;  // JOR: CANONICAL COORDS FOR TSNE1 IS 90000
 // COORDINATE_MULTIPLIER = 800000  JOR: BEST COORDS FOR TSNE2
 DRAW_DISTANCE = 3000000;
+MAX_DISTANCE_TO_SELECT_GAME = 5000;
 // These define how forgiving we are about clicks being slightly off from the actual game object
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN = 100;
 GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_TOUCHSCREEN = 190;
@@ -116,14 +117,16 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	    this.randomStartGame = true;
 	}
 	this.cameraVel = 0;
+	this.infoModalOpen = false;  // Used to support escape key closing modals
+	this.controllerModalOpen = false;  // Used to support escape key closing modals
+	this.onPortraitOverlay = false;
 	this.closedModal = function() {
 	    if (!this.launched) {return false};
 	    if (this.infoModalOpen) {return false};
 	    if (this.controllerModalOpen) {return false};
+	    if (this.onPortraitOverlay) {return false};
 	    return true;
 	}
-	this.infoModalOpen = false;  // Used to support escape key closing modals
-	this.controllerModalOpen = false;  // Used to support escape key closing modals
 	this.mouseUpCounter = 0;
 	this.isAnimating = false; // Are we currently animating movement to a selection?
 	this.xAng = true;
@@ -252,7 +255,7 @@ Main.prototype.init = function(){
                         raycaster.ray.set(that.camera.position, that.rayVector);
                         var intersections = raycaster.intersectObjects(that.gameSquares);
                         raycaster = new THREE.Raycaster();
-                        raycaster.far = 5000;
+                        raycaster.far = MAX_DISTANCE_TO_SELECT_GAME;
                         raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
                         raycaster.ray.set(that.camera.position, that.rayVector);
                         intersections = raycaster.intersectObjects([that.particles]);
@@ -305,7 +308,7 @@ Main.prototype.init = function(){
                 raycaster.ray.set(that.camera.position, that.rayVector);
                 var intersections = raycaster.intersectObjects(that.gameSquares);
                 raycaster = new THREE.Raycaster();
-                raycaster.far = 5000;
+                raycaster.far = MAX_DISTANCE_TO_SELECT_GAME;
                 raycaster.params.PointCloud.threshold = that.gameSelectionClickCushion;
                 raycaster.ray.set(that.camera.position, that.rayVector);
                 intersections = raycaster.intersectObjects([that.particles]);
@@ -352,7 +355,7 @@ Main.prototype.init = function(){
 	    urlGameTitle = that.selected.gameTitle.replace(/\s/g, "%20");
 	    modifiedGameID = that.selected.id*348290;
 	    hashedGameID = modifiedGameID.toString(16);
-	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@flygamespace!%0A%0Ahttp://gamecip-projects.soe.ucsc.edu/gamespace/start=" + hashedGameID + "&related=flygamespace",
+	    urlString = "https://twitter.com/intent/tweet?text=Just%20found%20" + urlGameTitle + "%20(" + that.selected.year + ")%20in%20@flygamespace!%0A%0Ahttp://gamespace.io/start=" + hashedGameID + "&related=flygamespace",
 		window.open(
 		    url=urlString,
 		    name='_blank',
@@ -455,9 +458,11 @@ Main.prototype.init = function(){
             if(window.innerHeight > window.innerWidth){
                 // Enforce landscape orientation
                 document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "flex";
+                game.onPortraitOverlay = true;
             }
             else {
                 document.getElementById("overlayToEnforceLandscapeOrientation").style.display = "none";
+                game.onPortraitOverlay = false;
             }
         }
 		that.camera.aspect = (window.innerWidth/window.innerHeight);
@@ -465,9 +470,6 @@ Main.prototype.init = function(){
 		that.renderer.setSize( window.innerWidth, window.innerHeight);
 		that.width = window.innerWidth;
 		that.height = window.innerHeight;
-		if (that.selectedModel !== null) {
-		    positionIcons();
-		}
 		// Update joystick positions (easiest way is to just destroy the current ones and build
         // new ones)
         if(that.touchscreen) {
@@ -531,6 +533,10 @@ Main.prototype.update = function(dt){
 		        deselectGame();
 		    }
         }
+
+        if (this.selectedModel.visible) {
+		    positionIcons();
+		}
 
 		if(this.selected === null){
 			if(this.rightMouseDown){
@@ -952,7 +958,6 @@ Main.prototype.readGames = function(pathToStaticDir){
 	        // a touch event would be expected instead), so we need to manually play here as well
 	        backgroundAudio.play();
 	    }
-	    positionIcons();
 	});
 
 	$("#gLaunch").on("touchend", function(){
