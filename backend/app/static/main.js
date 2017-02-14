@@ -232,6 +232,8 @@ Main.prototype.init = function(){
 		    that.mousePos.y = e.pageY;
 	    }
 	});
+
+	// Raycasting code for game selection on non-touchscreen devices
 	document.addEventListener("mouseup", function(e){
 	    if (!that.touchscreen) {
 	        if(that.closedModal && !that.moving()){
@@ -263,14 +265,6 @@ Main.prototype.init = function(){
                             that.selectedModel.visible = false;
                             that.selectedModel.position.copy(that.selected.position);
                             madeNewSelection = true;
-    //						if(that.touchscreen) {
-    //						    // Because audio is ridiculous on mobile browsers, we have to do this
-    //						    // hacky thing to bind a silent audio play to a touch event, which somehow
-    //						    // allows the actual play event that we want to happen later to play
-    //                            var gameSelectionChime = document.getElementById("gameSelectionSound");
-    //                            gameSelectionChime.muted = true;
-    //                            gameSelectionChime.play();
-    //						}
                         }
                     }
                 }
@@ -296,8 +290,9 @@ Main.prototype.init = function(){
       game.mousePos.y = e.changedTouches[0].pageY;
     });
 
+    // Raycasting code for game selection on touchscreen devices
 	document.addEventListener("touchend", function(e){
-		if(that.closedModal && !that.moving()){
+		if( that.closedModal && !that.moving() && !that.leftJoystick.anyInput() && !that.rightJoystick.anyInput() ){
             if((  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
                 || (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
                 that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
