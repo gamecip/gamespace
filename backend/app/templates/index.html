@@ -64,7 +64,7 @@
           border-radius: 0 !important;
         }
         .modal {
-          // THIS IS WHERE THE 'GAMESPACE' TITLE TEXT STYLE IS DEFINED, SINCE IT'S PART OF THE LOADING MODAL
+          /* THIS IS WHERE THE 'GAMESPACE' TITLE TEXT STYLE IS DEFINED, SINCE IT'S PART OF THE LOADING MODAL */
           width: 100%;
           border-radius: 0 !important;
           text-align: center;
@@ -135,7 +135,7 @@
           border: 0px;
           border-radius: 0 !important;
         }
-        .ui-dialog { {
+        .ui-dialog {
           border: 0px;
           background: #ffffff;
           border-radius: 0 !important;
@@ -264,13 +264,15 @@
                 THREE.ImageUtils.crossOrigin = '';
                 PATH_TO_STATIC_FOLDER = "{{ url_for('static', filename = '') }}";
                 //Turn on logger
-                globalLogger = new Logger(storageAvailable('localStorage'), $('body').data('user-id'), startTime);
-                globalLogger.flushDataToServer();
-                setInterval(function(){
+                if(storageAvailable('localStorage')){
+                    globalLogger = new Logger(storageAvailable('localStorage'), $('body').data('user-id'), startTime);
+                    globalLogger.flushDataToServer();
+                    setInterval(function(){
 //                    console.log("Sending " + globalLogger.coordinateQueue.length + "coordinates");
 //                    console.log("Sending " + globalLogger.actionQueue.length + "actions");
-                    globalLogger.flushDataToServer();
-                }, 3000);
+                        globalLogger.flushDataToServer();
+                    }, 3000);
+                }
 
                 // Create main and initialize
                 game = new Main(window.innerWidth,
