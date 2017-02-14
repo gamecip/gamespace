@@ -470,9 +470,6 @@ Main.prototype.init = function(){
 		that.renderer.setSize( window.innerWidth, window.innerHeight);
 		that.width = window.innerWidth;
 		that.height = window.innerHeight;
-		if (that.selectedModel !== null) {
-		    positionIcons();
-		}
 		// Update joystick positions (easiest way is to just destroy the current ones and build
         // new ones)
         if(that.touchscreen) {
@@ -536,6 +533,10 @@ Main.prototype.update = function(dt){
 		        deselectGame();
 		    }
         }
+
+        if (this.selectedModel.visible) {
+		    positionIcons();
+		}
 
 		if(this.selected === null){
 			if(this.rightMouseDown){
@@ -957,7 +958,6 @@ Main.prototype.readGames = function(pathToStaticDir){
 	        // a touch event would be expected instead), so we need to manually play here as well
 	        backgroundAudio.play();
 	    }
-	    positionIcons();
 	});
 
 	$("#gLaunch").on("touchend", function(){
