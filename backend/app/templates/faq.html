@@ -1,0 +1,234 @@
+<html>
+	<head>
+		<title>FAQ | GameSpace</title>
+		<!-- Load favicon and other icons -->
+		<link rel="apple-touch-icon" sizes="57x57"  href="{{ url_for('static', filename = 'apple-icon-57x57.png') }}">
+		<link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename = 'apple-icon-60x60.png') }}">
+		<link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename = 'apple-icon-72x72.png') }}">
+		<link rel="apple-touch-icon" sizes="76x76" href="{{ url_for('static', filename = 'apple-icon-76x76.png') }}">
+		<link rel="apple-touch-icon" sizes="114x114" href="{{ url_for('static', filename = 'apple-icon-114x114.png') }}">
+		<link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename = 'apple-icon-120x120.png') }}">
+		<link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename = 'apple-icon-144x144.png') }}">
+		<link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename = 'apple-icon-152x152.png') }}">
+		<link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename = 'apple-icon-180x180.png') }}">
+		<link rel="icon" type="image/png" sizes="192x192"  href="{{ url_for('static', filename = 'android-icon-192x192.png') }}">
+		<link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename = 'favicon-32x32.png') }}">
+		<link rel="icon" type="image/png" sizes="96x96" href="{{ url_for('static', filename = 'favicon-96x96.png') }}">
+		<link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename = 'favicon-16x16.png') }}">
+		<link rel="manifest" href="{{ url_for('static', filename = 'manifest.json') }}">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="{{ url_for('static', filename = 'ms-icon-144x144.png') }}">
+		<meta name="theme-color" content="#ffffff">
+        <!-- Load Google font -->
+        <link href='http://fonts.googleapis.com/css?family=Josefin+Sans:100,300,700' rel='stylesheet' type='text/css'>
+		<style>
+        #title {
+          font-size: 12vw;
+          text-align: center;
+          width: 100%;
+          text-align: center;
+          font-family: 'Josefin Sans', sans-serif;
+		  font-weight: 300;
+		  background-color: #000000;
+		  color:#FFFFFF;
+        }
+        #theSpace {
+          width: 20%;
+          padding: 20px;
+        }
+        .question {
+          font-size: 26pt;
+          text-align: center;
+          width: 55%;
+          font-family: 'Josefin Sans', sans-serif;
+		  background-color: #000000;
+		  color:#FFFFFF;
+          font-weight: 700;
+          line-height: 1.2;
+          padding: 10px;
+        }
+        .answer {
+          font-size: 22pt;
+          text-align: center;
+          width: 62%;
+          font-family: 'Josefin Sans', sans-serif;
+		  background-color: #000000;
+		  color:#FFFFFF;
+          font-weight: 300;
+          line-height: 1.2;
+        }
+        a:link {
+          text-decoration: none;
+          color: #FFF996;
+        }
+        a:visited {
+          text-decoration: none;
+          color: #FFF996;
+        }
+        a:hover {
+          color: #FFF996;
+          text-decoration: underline;
+        }
+        a:active {
+          color: #FFF996;
+          text-decoration: underline;
+        }
+		</style>
+	</head>
+    <body style="background-color: black;">
+    <center>
+    <div id="title">
+        <img id="theSpace" src="{{ url_for('static', filename = 'theSpace.png') }}">
+        <br>
+        GameSpace
+    </div>
+    <br><br>
+    <div class="question">What is this?</div>
+    <div class="answer">
+        <a href="https://gamespace.io" target="_blank">GameSpace</a> is
+        a visualization of the videogame medium as an explorable 3D space. Each of the
+        nearly 16,000 stars in the galaxy represents an actual game that exists in the real world, and
+        stars are placed in the space such that more similar games are nearer to one another. For example, games
+        in the same series might naturally emerge as star clusters, which themselves may compose larger nebulae
+        corresponding to game genres or subgenres. The coordinates for the games in the
+        visualization were determined by applying a combination of techniques from natural language processing
+        and machine learning to a corpus of 16,000 Wikipedia articles about videogames (more
+        technical details appear below).
+    </div>
+    <br><br>
+    <div class="question">How do I play it?</div>
+    <div class="answer">
+        Fly around to explore the space and select individual games by clicking on them. (If you're
+        not sure what the controls are, click the controller icon at the top of the screen.) Once a
+        game is selected, you can view its Wikipedia article or watch a YouTube video capturing its
+        gameplay, all without leaving the space.
+    </div>
+    <br><br>
+    <div class="question">Who made it?</div>
+    <div class="answer">
+        GameSpace is a project by the Expressive Intelligence Studio at the University of California,
+        Santa Cruz. Its design and development was led by PhD students
+        <a href="https://twitter.com/xfoml" target="_blank">James Ryan</a> and
+        <a href="http://erickaltman.com/" target="_blank">Eric Kaltman</a>, with mentoring and support
+        from their advisors
+        <a href="https://games.soe.ucsc.edu/people/noah-wardrip-fruin" target="_blank">Noah Wardrip-Fruin</a>
+        and
+        <a href="https://users.soe.ucsc.edu/~michaelm/" target="_blank">Michael Mateas</a>.
+        Undergraduates
+        <a href="https://www.linkedin.com/in/taylorjowen" target="_blank">Taylor Owen-Milner</a>
+        and
+        <a href="https://www.linkedin.com/in/amaxfisher" target="_blank">Andrew Max Fisher</a>
+        carried out much of the development work. Our background music is
+        "Slow Lights" by
+        <a href="http://freemusicarchive.org/music/Lee_Rosevere/" target="_blank">Lee Rosevere</a>
+        (<a href="https://creativecommons.org/licenses/by-nc/3.0/" target="_blank">license</a>).
+        Like its companion tools—<a href="http://gamecip-projects.soe.ucsc.edu/gamenet" target="_blank">GameNet</a>,
+        <a href="http://gamecip-projects.soe.ucsc.edu/gamesage" target="_blank">GameSage</a>,
+        and <a href="http://gamecip-projects.soe.ucsc.edu/gameglobs" target="_blank">GameGlobs</a>—this project is part of the
+        larger Game Metadata and Citation Project (<a href="https://gamecip.soe.ucsc.edu/about" target="_blank">GAMECIP</a>),
+        a multi-year joint initiative between
+        UC Santa Cruz and Stanford that is funded by the Institute of Museum and Library Services
+        (grant LG-06-13-0205-13). GAMECIP seeks to develop resources and best practices for videogame
+        discovery, preservation, citation, and metadata creation.
+    </div>
+    <br><br>
+    <div class="question">How did you make it?</div>
+    <div class="answer">
+        GameSpace is critically enabled by two techniques—latent semantic analysis (LSA) and
+        multidimensional scaling—applied to a large corpus of descriptive text extracted from
+        Wikipedia articles about games. LSA works from the subtle premise that things that are
+        described similarly are likely similar. By applying LSA to a corpus of 16,000 Wikipedia
+        articles about games, we're able to automatically compute numerical scores between games
+        that specify how related they are. There's one problem, though: our LSA model is
+        high-dimensional—it is specified as a space with 207 dimensions, each of which pertain to
+        arcane statistical features of the article texts that are not interpretable by humans—which
+        means that it's hard to visualize. (Our answer to the challenge of visualizing our
+        207-dimensional model is GameSpace's companion tool, GameNet.) That's where multidimensional
+        scaling comes in—this is a statistical technique that allows you to convert high-dimensional
+        spaces into lower-dimensional approximations of them that can be visualized for humans.
+        Using a particular variant called t-distributed stochastic neighbor embedding, we built a
+        3D approximation of our 207-dimensional LSA model. The beauty is that this method positions
+        games in the 3D space such that they are near to the games they are near to in the
+        207-dimensional space. So while it's not a perfect representation of the full model, it
+        works to maintain some of its critical topology. GameSpace, then, is simply this 3D space
+        rendered in a game engine (with a navigable camera), along with some extra features.
+    </div>
+    <br><br>
+    <div class="question">What languages and tools did you use to develop it?</div>
+    <div class="answer">
+        Python, gensim, scikit-learn, Flask, JavaScript, three.js, jQuery, bootstrap, virtualjoystick.js.
+    </div>
+    <br><br>
+    <div class="question">I heard somewhere that this is a living visualization. What does that mean?</div>
+    <div class="answer">
+        Beginning in March 2017, GameSpace will scrape Wikipedia each night to collect any new videogame
+        articles that have appeared (or any existing articles that have been expanded beyond 250 words),
+        and it will process these to automatically add them into the space. This means that the visualization
+        will be living and growing and evolving as the canon of Wikipedia videogame articles grows and
+        evolves. If your wondering if a particular game is in the space, you'll want to check to see whether
+        it has a proper Wikipedia article. If it doesn't, you can author one, and the game will then be added
+        into the space the next day.
+    </div>
+    <br><br>
+    <div class="question">The YouTube video for a game that I selected was irrelevant. Why?</div>
+    <div class="answer">
+        Due to the number of games in the model, we're currently generating queries for gameplay videos
+        and hoping the results are relevant. Of course, however, some games may not have gameplay videos
+        on YouTube (yet!). If you encountered an offensive video, let us know and we'll remove the link.
+    </div>
+    <br><br>
+    <div class="question">Have you thought about using this technique to visualize another domain?</div>
+    <div class="answer">
+        Yes. Stay tuned.
+    </div>
+    <br><br>
+    <div class="question">How do I contact you?</div>
+    <div class="answer">
+        You can find us on Twitter as <a href="https://twitter.com/flygamespace" target="_blank">@flygamespace</a>,
+        or you can drop us a line  <a href="mailto:jor@soe.ucsc.edu?cc=ekaltman@soe.ucsc.edu" target="_top">via email</a>.
+    </div>
+    <br><br>
+    <div class="question">I'd like to write about GameSpace. Do you have any images I could freely use?</div>
+    <div class="answer">
+        Here's a  <a href="https://users.soe.ucsc.edu/~jor/gamespace_press_image_pack.zip" target="_blank">
+        pack of images</a> that you can freely use. Also feel free to take and use any screenshots of the
+        application. If you can't quite get the image you need, let us know and we'll try to provide it for you.
+    </div>
+    <br><br>
+    <div class="question">I'm a scholar. How can I cite GameSpace in my work?</div>
+    <div class="answer">
+        A full paper is still forthcoming. In the meantime, you can cite:
+        <ul>
+          <li>Our short paper that introduced an early prototype of GameSpace in 2015:<br><br>
+              Ryan,
+              J. O., Kaltman, E., Fisher, A. M., Hong, T., Owen-Milner, T., Mateas, M., &
+              Wardrip-Fruin, N. (2015). Large-scale interactive visualizations of nearly
+              12,000 digital games. Proc. Foundations of Digital Games.
+              <a href="https://users.soe.ucsc.edu/~jor/publications/ryanLargeScaleVisualizationsOf12000Games.pdf" target="_blank">[pdf]</a>
+          </li>
+          <br>
+          <li>A longer paper that articulates the approach of using natural language processing
+              in the field of game studies (note: this paper is not specifically about
+              GameSpace):<br><br>
+              Ryan, J. O., Kaltman, E., Mateas, M., & Wardrip-Fruin, N. (2015). What
+              we talk about when we talk about games: Bottom-up game studies using natural
+              language processing. Proc. Foundations of Digital Games.
+              <a href="https://users.soe.ucsc.edu/~jor/publications/ryanGamesStudiesUsingNLP.pdf" target="_blank">[pdf]</a>
+          </li>
+        </ul>
+    </div>
+    </center>
+	</body>
+    <script>
+        if ('createTouch' in document) {
+            var myElements = document.querySelectorAll(".question");
+            for (var i = 0; i < myElements.length; i++) {
+                myElements[i].style.fontWeight = "700";
+            }
+            var myElements = document.querySelectorAll(".answer");
+            for (var i = 0; i < myElements.length; i++) {
+                myElements[i].style.width = "700";
+            }
+        }
+    </script>
+</html>
