@@ -69,12 +69,12 @@
           border-radius: 0 !important;
           text-align: center;
           font-family: 'Josefin Sans', sans-serif;
-		  font-weight: 700;
+		  font-weight: 300;
 		  background-color: #000000;
 		  color:#FFFFFF;
         }
         #projectInfo {
-          font-weight: 700;
+          font-weight: 300;
           font-size:22pt;
           border:0;
           outline:0;
@@ -207,26 +207,27 @@
         <script src="{{ url_for('static', filename = 'main.js') }}"></script>
         <script src="{{ url_for('static', filename = 'jsapi.js') }}"></script>
 		<!-- Title-screen modal -->
-		<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		  <div class="modal-dialog" style="margin-top: 5%;">
+		<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="height:100%;">
+			<div class="modal-dialog" style="margin-top: 2%;">
+			  <img src="{{ url_for('static', filename = 'theSpace.png') }}" style="height:35%;">
 		    <div class="modal-content">
-		      <div class="modal-body">
+		      <div class="modal-body" style="font-size: 26vh">
 				  GameSpace
 				  <div class="progress center-block">
 				  <center><div class="progress-bar" role="progressbar" id="loadingProgress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:2%;">
 				  </div></center>
 				</div>
 				  <center><div id="projectInfo">
-                      The videogame medium as a 3D explorable space. Enabled by techniques from natural language
-                      processing and machine learning. A project by the Expressive Intelligence Studio at UC Santa
+                      The videogame medium as a 3D explorable space.<br>A project by the Expressive Intelligence Studio at UC Santa
                       Cruz.
                       <br><br>
-                      For more info, see our press kit (coming soon).
+                      For more info, follow us on Twitter:
+					  <a href="https://twitter.com/flygamespace" target="_blank">@flygamespace</a>.
                   </div></center>
 		      </div>
 		      <div class="modal-footer">
                 <!-- 'Begin' button that will appear upon all the data being loaded in -->
-		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="font-size:32px;font-weight:700" disabled>BEGIN</button></center>
+		        <center><button type="button" class="btn btn-default" id="gLaunch" data-dismiss="modal" style="font-size:32px;font-weight:300" disabled>BEGIN</button></center>
                 </div>
 		    </div>
 		  </div>
