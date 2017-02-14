@@ -286,7 +286,7 @@
                             dt = now - (time || now);
                     time = now;
                     game.update(dt);
-                    window.requestAnimationFrame(gameUpdate, game.renderer.domElement);
+                    window.requestAnimationFrame(gameUpdate);
                 }
                 gameUpdate();
             });
