@@ -52,6 +52,12 @@ class Action(db.Model):
     timestamp = db.Column(db.Integer)
 
 
+@app.route('/gamespace/')
+def home_with_slash():
+    """Render a GameSpace instance that starts from a random game."""
+    return home()
+
+
 @app.route('/gamespace')
 def home():
     """Render a GameSpace instance that starts from a random game."""
