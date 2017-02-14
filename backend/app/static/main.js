@@ -116,7 +116,12 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	    this.randomStartGame = true;
 	}
 	this.cameraVel = 0;
-	this.closedModal = false;
+	this.closedModal = function() {
+	    if (!this.launched) {return false};
+	    if (this.infoModalOpen) {return false};
+	    if (this.controllerModalOpen) {return false};
+	    return true;
+	}
 	this.infoModalOpen = false;  // Used to support escape key closing modals
 	this.controllerModalOpen = false;  // Used to support escape key closing modals
 	this.mouseUpCounter = 0;
@@ -129,8 +134,6 @@ var Main = function(w, h, pathToStaticDir, startingGameID){
 	this.lastYDir = 0;
 	this.paneDelta = 0;
 	this.paneWidth = 0;
-	this.infoButtonVisible = false;
-	this.controlsButtonVisible = false;
 	this.toggleOn = false;
 	this.lastFrameX = this.camera.position.x;
     this.lastFrameY = this.camera.position.y;
@@ -197,6 +200,7 @@ Main.prototype.init = function(){
 	// read in games
 	this.readGames(this.pathToStaticDir);
 	this.ready = false;
+	this.launched = false;
 	// get a reference to this
 	var that = this;
 	// Prepare YouTube player
@@ -210,7 +214,7 @@ Main.prototype.init = function(){
 		e.preventDefault();
 	});
     document.addEventListener("mousedown", function(e){
-		if(that.closedModal && !that.isAnimating && !that.touchscreen){
+		if(that.closedModal() && !that.isAnimating && !that.touchscreen){
 			if(e.which === 1){  // Left click
 				// Support mouse movement for turning
 				that.hasLeftMousePressed = true;
@@ -236,7 +240,7 @@ Main.prototype.init = function(){
 	// Raycasting code for game selection on non-touchscreen devices
 	document.addEventListener("mouseup", function(e){
 	    if (!that.touchscreen) {
-	        if(that.closedModal && !that.moving()){
+	        if(that.closedModal() && !that.moving()){
                 var madeNewSelection = false;
                 if(e.which === 1){
                     if(
@@ -292,7 +296,7 @@ Main.prototype.init = function(){
 
     // Raycasting code for game selection on touchscreen devices
 	document.addEventListener("touchend", function(e){
-		if( that.closedModal && !that.moving() && !that.leftJoystick.anyInput() && !that.rightJoystick.anyInput() ){
+		if( that.closedModal() && !that.moving() && !that.leftJoystick.anyInput() && !that.rightJoystick.anyInput() ){
             if((  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
                 || (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
                 that.rayVector.set((that.mousePos.x/window.innerWidth) * 2 - 1, -(that.mousePos.y/window.innerHeight) * 2 + 1, 0.5).unproject(that.camera);
@@ -356,7 +360,7 @@ Main.prototype.init = function(){
 		)
 	});
 	document.addEventListener("keydown", function(e){
-		if(that.closedModal && !that.isAnimating){
+		if(that.closedModal() && !that.isAnimating){
 			// w
 			if(e.which === 87){
 				that.cameraVel = STANDARD_VELOCITY;
@@ -401,7 +405,7 @@ Main.prototype.init = function(){
 	});
 
 	document.addEventListener("keyup", function(e){
-		if(that.closedModal && !that.isAnimating){
+		if(that.closedModal() && !that.isAnimating){
 			// w
 			if(e.which === 87){
 				if(that.selected == null){
@@ -1006,11 +1010,9 @@ function toggleInfoModal() {
     game.toggleOn = !game.toggleOn;
     if(game.toggleOn == true) {
         var toggleSound = document.getElementById("toggleOnSound");
-        game.closedModal = false;
     }
     else {
         var toggleSound = document.getElementById("toggleOffSound");
-        game.closedModal = true;
     }
     toggleSound.play();
 }
@@ -1024,11 +1026,9 @@ function toggleControllerModal() {
     game.toggleOn = !game.toggleOn;
     if(game.toggleOn == true) {
         var toggleSound = document.getElementById("toggleOnSound");
-        game.closedModal = false;
     }
     else {
         var toggleSound = document.getElementById("toggleOffSound");
-        game.closedModal = true;
     }
     toggleSound.play();
 }
@@ -1052,8 +1052,8 @@ function enterSpace() {
     // after accidentally submitting control inputs (more commonly, a touch event will be
     // registered by mobile users for clicking on the 'Begin' button, which may cause a
     // nearby game to be immediately selected -- this happens whenever the touch event outlasts
-    // the time it takes to set game.closedModal to 'true' without using a setTimeout call)
-    setTimeout(function(){ game.closedModal = true; }, 500);
+    // the time it takes to set game.launched to 'true' without using a setTimeout call)
+    setTimeout(function(){ game.launched = true; }, 500);
 }
 
 // Listener for deselecting objects
