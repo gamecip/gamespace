@@ -196,7 +196,7 @@ Main.prototype.init = function(){
 	this.camera.position.x = 0;
 	this.camera.position.y = 0;
 	this.camera.position.z = 0;
-	this.scene.add(new THREE.AmbientLight(0xeeeeee));
+//	this.scene.add(new THREE.AmbientLight(0xeeeeee));  JOR: Not seeing any difference with this commented out?
 	// read in games
 	this.readGames(this.pathToStaticDir);
 	this.ready = false;
@@ -465,7 +465,9 @@ Main.prototype.init = function(){
 		that.renderer.setSize( window.innerWidth, window.innerHeight);
 		that.width = window.innerWidth;
 		that.height = window.innerHeight;
-		that.renderer.render(that.scene, that.camera);
+		if (that.selectedModel !== null) {
+		    positionIcons();
+		}
 		// Update joystick positions (easiest way is to just destroy the current ones and build
         // new ones)
         if(that.touchscreen) {
@@ -498,6 +500,7 @@ Main.prototype.init = function(){
             that.leftJoystick._baseEl.style.display	= "";
 	        that.rightJoystick._baseEl.style.display = "";
         }
+        that.renderer.render(that.scene, that.camera);
 	}, false);
 };
 
@@ -845,20 +848,19 @@ Main.prototype.readGames = function(pathToStaticDir){
 	var paneDelta = that.width/15;
 	this.paneWidth = paneWidth;
 	this.paneDelta = paneDelta;
-    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 55.8vh; left: 40.8vw; width: 5.5vh; height: 3.4875%; position: absolute;'>" +
+    $("#paneHolder").append("<div id='wikiPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; width: 5.507vh; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "wikipedia_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
 
-	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 56.0vh; left: 56.15vw; width: 5.75vh; height: 3.627%; position: absolute;'>" +
+	$("#paneHolder").append("<div id='youtubePanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; width: 5.75vh; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "youtube_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; top: 64vh; left: 48.66vw; width: 5.7vh; height: 3.627%; position: absolute;'>" +
+	$("#paneHolder").append("<div id='twitterPanel' class='panel panel-default' style='cursor: pointer; background-color: transparent; border-color:transparent; width: 5.7vh; position: absolute;'>" +
 									"<center><img class='img-responsive' src='" + pathToStaticDir + "twitter_logo_shadow.png' style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%;'></center>" +
 							"</div>"
 							);
-//	positionIcons();
 	this.selectedModel = new THREE.Sprite( new THREE.SpriteMaterial({color: 0xffffff, map: that.circleSprite}));
 	this.selectedModel.scale.copy(new THREE.Vector3(100, 100, 100));
 	this.selectedModel.visible = false;
@@ -869,17 +871,6 @@ Main.prototype.readGames = function(pathToStaticDir){
 	$.getJSON("/gamespace/load_info", loadGameFiles).fail(function(){
 		//console.log("Load info failed.")
 	});
-
-	function positionIcons() {
-	    // TODO
-	    // Procedurally position the Wikipedia, YouTube, and Twitter icons
-	    document.getElementById('twitterPanel').style.left = window.innerWidth*0.49 + "px"
-        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.6) / 2 + "px"
-        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.) / 2 + "px"
-        document.getElementById('twitterPanel').style.left = (window.innerWidth*0.49) + (window.innerHeight*0.5) / 2 + "px"
-        document.getElementById('twitterPanel').style.left = ((window.innerWidth*0.49) + (window.innerHeight*0.5)) / 2 + "px"
-        document.getElementById('twitterPanel').style.left = ((window.innerWidth*0.49) + (window.innerHeight*0.6)) / 2 + "px"
-	}
 
 	function loadGameFiles(data){
 		that.filesToLoad = data.length;
@@ -961,6 +952,7 @@ Main.prototype.readGames = function(pathToStaticDir){
 	        // a touch event would be expected instead), so we need to manually play here as well
 	        backgroundAudio.play();
 	    }
+	    positionIcons();
 	});
 
 	$("#gLaunch").on("touchend", function(){
@@ -1127,6 +1119,32 @@ function deselectGame() {
     $("#gameTitleP").text(" ");
     $("#gameTitleP").attr("style", "display: none;");
   }
+}
+
+function positionIcons() {
+    // Procedurally position the Wikipedia, YouTube, and Twitter icons
+    circleSpriteCoords = screenCoordinatesOfSelectedGameCircle();
+    var bottomOfCircleY = window.innerHeight*0.625;
+    // Position Wikipedia icon
+    document.getElementById('wikiPanel').style.left = circleSpriteCoords.x-(window.innerHeight*0.18) + "px";
+    document.getElementById('wikiPanel').style.top = bottomOfCircleY-(window.innerHeight*0.05) + "px";
+    // Position YouTube icon
+    document.getElementById('youtubePanel').style.left = circleSpriteCoords.x+(window.innerHeight*0.12) + "px";
+    document.getElementById('youtubePanel').style.top = bottomOfCircleY-(window.innerHeight*0.047) + "px";
+    // Position Twitter icon
+    document.getElementById('twitterPanel').style.left = circleSpriteCoords.x-(window.innerHeight*0.029) + "px";
+    document.getElementById('twitterPanel').style.top = bottomOfCircleY+(window.innerHeight*0.035) + "px";
+}
+
+function screenCoordinatesOfSelectedGameCircle () {
+    var width = window.innerWidth, height = window.innerHeight;
+    var widthHalf = width / 2, heightHalf = height / 2;
+    var pos = game.selectedModel.position.clone();
+    pos.project(game.camera);
+    pos.x = ( pos.x * widthHalf ) + widthHalf;
+    pos.y = - ( pos.y * heightHalf ) + heightHalf;
+    pos.z = 0;
+    return pos;
 }
 
 // YouTube jazz
