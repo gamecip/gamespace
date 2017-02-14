@@ -730,8 +730,10 @@ Main.prototype.animating = function(){
 		// Exit thingy if both thingies happen
 	} else if(this.camera.position.distanceTo(this.selected.position) < 575  + this.camVel && Math.abs(vDiff) < 0.005 && Math.abs(diffAngle) < 0.005){
 		var gameSelectionChime = document.getElementById("gameSelectionSound");
-		gameSelectionChime.muted = false;
-        gameSelectionChime.play();
+		if (!document.getElementById("backgroundAudio").muted) {
+            gameSelectionChime.muted = false; // This was muted to appease annoying mobile audio stuff
+            gameSelectionChime.play();
+		}
 		this.isAnimating = false;
 		this.fTrg = true;
 		$("#gameTitleP").attr("style", "display: block;");
