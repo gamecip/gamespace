@@ -90,19 +90,19 @@
         a visualization of the videogame medium as an explorable 3D space. Each of the
         nearly 16,000 stars in the galaxy represents an actual game that exists in the real world, and
         stars are placed in the space such that more similar games are nearer to one another. For example, games
-        in the same series might naturally emerge as star clusters, which themselves may compose larger nebulae
-        corresponding to game genres or subgenres. The coordinates for the games in the
-        visualization were determined by applying a combination of techniques from natural language processing
+        from the same series might be positioned in star clusters, and clusters like these may themselves
+        cluster to compose larger nebulae corresponding to game genres or subgenres. The coordinates for the games
+        in the visualization were determined by applying a combination of techniques from natural language processing
         and machine learning to a corpus of 16,000 Wikipedia articles about videogames (more
         technical details appear below).
     </div>
     <br><br>
     <div class="question">How do I play it?</div>
     <div class="answer">
-        Fly around to explore the space and select individual games by clicking on them. (If you're
+        Fly around to explore the space; select individual games by clicking on them. (If you're
         not sure what the controls are, click the controller icon at the top of the screen.) Once a
-        game is selected, you can view its Wikipedia article or watch a YouTube video capturing its
-        gameplay, all without leaving the space.
+        game is selected, you can view its Wikipedia article or watch a YouTube gameplay video, all without
+        leaving the space.
     </div>
     <br><br>
     <div class="question">Who made it?</div>
@@ -136,23 +136,25 @@
     <div class="question">How did you make it?</div>
     <div class="answer">
         GameSpace is critically enabled by two techniques—latent semantic analysis (LSA) and
-        multidimensional scaling—applied to a large corpus of descriptive text extracted from
+        multidimensional scaling—which we applied to a large corpus of descriptive text extracted from
         Wikipedia articles about games. LSA works from the subtle premise that things that are
-        described similarly are likely similar. By applying LSA to a corpus of 16,000 Wikipedia
-        articles about games, we're able to automatically compute numerical scores between games
+        described similarly are likely to, in fact, be similar. By submitting a corpus of 16,000 Wikipedia
+        articles about games to LSA, we're able to automatically compute numerical scores between games
         that specify how related they are. There's one problem, though: our LSA model is
-        high-dimensional—it is specified as a space with 207 dimensions, each of which pertain to
-        arcane statistical features of the article texts that are not interpretable by humans—which
+        high-dimensional—you can think of it as an abstract space with 207 dimensions—which
         means that it's hard to visualize. (Our answer to the challenge of visualizing our
-        207-dimensional model is GameSpace's companion tool, GameNet.) That's where multidimensional
-        scaling comes in—this is a statistical technique that allows you to convert high-dimensional
-        spaces into lower-dimensional approximations of them that can be visualized for humans.
+        207-dimensional model is GameSpace's companion tool,
+        <a href="http://gamecip-projects.soe.ucsc.edu/gamenet" target="_blank">GameNet</a>.)
+        That's where multidimensional
+        scaling comes in—this is a statistical technique that allows one to convert high-dimensional
+        spaces into lower-dimensional approximations of them (typically two- or three-dimensional
+        approximations, since those can be visualized for humans).
         Using a particular variant called t-distributed stochastic neighbor embedding, we built a
-        3D approximation of our 207-dimensional LSA model. The beauty is that this method positions
+        3D approximation of our 207-dimensional LSA model. The beauty, then, is that this method positions
         games in the 3D space such that they are near to the games they are near to in the
         207-dimensional space. So while it's not a perfect representation of the full model, it
-        works to maintain some of its critical topology. GameSpace, then, is simply this 3D space
-        rendered in a game engine (with a navigable camera), along with some extra features.
+        works to maintain important features of its topology. GameSpace, then, is simply this 3D space
+        rendered in a game engine (with a first-person camera and flying controls), along with some extra features.
     </div>
     <br><br>
     <div class="question">What languages and tools did you use to develop it?</div>
@@ -163,22 +165,22 @@
     <div class="question">I heard somewhere that this is a living visualization. What does that mean?</div>
     <div class="answer">
         Beginning in March 2017, GameSpace will scrape Wikipedia each night to collect any new videogame
-        articles that have appeared (or any existing articles that have been expanded beyond 250 words),
-        and it will process these to automatically add them into the space. This means that the visualization
-        will be living and growing and evolving as the canon of Wikipedia videogame articles grows and
-        evolves. If your wondering if a particular game is in the space, you'll want to check to see whether
-        it has a proper Wikipedia article. If it doesn't, you can author one, and the game will then be added
+        articles that have appeared (or any existing articles that have been expanded beyond our minimum threshold
+        of 250 words), and it will process these articles to automatically add new games into the space. This means
+        that the visualization will be living and growing and evolving as the collection of Wikipedia videogame articles
+        grows and evolves. If your wondering if a particular game is in the space, you'll want to check to see whether
+        it has a proper Wikipedia article. If it doesn't, you can author one for it, and the game will then be added
         into the space the next day.
     </div>
     <br><br>
     <div class="question">The YouTube video for a game that I selected was irrelevant. Why?</div>
     <div class="answer">
-        Due to the number of games in the model, we're currently generating queries for gameplay videos
-        and hoping the results are relevant. Of course, however, some games may not have gameplay videos
-        on YouTube (yet!). If you encountered an offensive video, let us know and we'll remove the link.
+        Due to the number of games in the model, we're currently generating YouTube queries for gameplay videos
+        and hoping that the results are relevant. Of course, some games may not even have gameplay videos
+        on YouTube (yet!). If you encounter an offensive video, let us know and we'll remove the link.
     </div>
     <br><br>
-    <div class="question">Have you thought about using this technique to visualize another domain?</div>
+    <div class="question">Have you thought about using this technique to visualize other domains?</div>
     <div class="answer">
         Yes. Stay tuned.
     </div>
@@ -193,7 +195,8 @@
     <div class="answer">
         Here's a  <a href="/data/gamespace_press_image_pack.zip" target="_blank">
         pack of images</a> that you can freely use. Also feel free to take and use any screenshots of the
-        application. If you can't quite get the image you need, let us know and we'll try to provide it for you.
+        application in action. If you can't quite get the image you need, let us know and we'll try to provide
+        it for you.
     </div>
     <br><br>
     <div class="question">I'm a scholar. How can I cite GameSpace in my work?</div>
@@ -209,8 +212,7 @@
           </li>
           <br>
           <li>A longer paper that articulates the approach of using natural language processing
-              in the field of game studies (note: this paper is not specifically about
-              GameSpace):<br><br>
+              in the field of game studies:<br><br>
               Ryan, J. O., Kaltman, E., Mateas, M., & Wardrip-Fruin, N. (2015). What
               we talk about when we talk about games: Bottom-up game studies using natural
               language processing. Proc. Foundations of Digital Games.
