@@ -426,7 +426,6 @@ Main.prototype.init = function(){
 					that.shiftDown = true;
 					globalLogger.logAction(ACTION.SHIFT_DOWN);
 				}
-				that.cameraVel = -STANDARD_VELOCITY;
 			    that.speedBoostEngaged = true;
 			}
 			// left arrow
