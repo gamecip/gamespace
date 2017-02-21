@@ -15,7 +15,30 @@ ACTION = {
 	YOUTUBE_CLICK: 'y',
 	GAME_CLICK: 'g',
 	MUTE_CLICK: 'm',
-	START_CLICK: 's'
+	START_CLICK: 's',
+	INFO_CLICK: 'i',
+	CONTROL_CLICK: 'c',
+	UP_ARROW_DOWN: 'ud',
+	UP_ARROW_UP: 'uu',
+	RIGHT_ARROW_DOWN: 'rd',
+	RIGHT_ARROW_UP: 'ru',
+	LEFT_ARROW_DOWN: 'ld',
+	LEFT_ARROW_UP: 'lu',
+	DOWN_ARROW_DOWN: 'dd',
+	DOWN_ARROW_UP: 'du',
+	LEFT_MOUSE_DOWN: 'md',
+	LEFT_MOUSE_UP: 'mu',
+	RIGHT_MOUSE_DOWN: 'md',
+	RIGHT_MOUSE_UP: 'mu',
+	FORWARD_DOWN: 'fd',
+	FORWARD_UP: 'fu',
+	BACK_DOWN: 'bd',
+	BACK_UP: 'bu',
+	TOUCH_END: 'te',
+	SHIFT_DOWN: 'sd',
+	SHIFT_UP: 'su',
+	MODAL_INFO_ESC: 'ie',
+	MODAL_CONTROL_ESC: 'ce'
 };
 //Just adding in some notes here for next time you look at this:
 // Adding in logging will require grabbing the camera's position in three dimensional space
@@ -185,7 +208,7 @@ Main.prototype.init = function(){
 	    });
 	}
 	else {
-	    this.gameSelectionClickCushion = GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN
+	    this.gameSelectionClickCushion = GAME_SELECTION_CLICK_PROXIMITY_THRESHOLD_NOT_TOUCHSCREEN;
 	    // No joysticks needed, but create some prototypes that will act like the
 	    // joysticks so that we can still call their methods as needed without
 	    // having to check whether they exist each time
@@ -193,6 +216,10 @@ Main.prototype.init = function(){
 	    this.leftJoystick.up = this.leftJoystick.down = this.leftJoystick.left = this.leftJoystick.right = function () {return false};
 	    this.rightJoystick.up = this.rightJoystick.down = this.rightJoystick.left = this.rightJoystick.right = function () {return false};
 	}
+	//checks for key held (for logging)
+	this.forwardDown = false;
+	this.backDown = false;
+	this.shiftDown = false;
 	// mouse button isn't down
 	this.leftMouseDown = false;
 	// set camera position
@@ -219,6 +246,7 @@ Main.prototype.init = function(){
     document.addEventListener("mousedown", function(e){
 		if(that.closedModal() && !that.isAnimating && !that.touchscreen){
 			if(e.which === 1){  // Left click
+				if(globalLogger) globalLogger.logAction(ACTION.LEFT_MOUSE_DOWN);
 				// Support mouse movement for turning
 				that.hasLeftMousePressed = true;
 				that.rightLocation.x = e.pageX;
@@ -227,6 +255,7 @@ Main.prototype.init = function(){
 			}
 			if(e.which === 3){  // Right click
 				// Keep track of panning
+				if(globalLogger) globalLogger.logAction(ACTION.RIGHT_MOUSE_DOWN);
 				that.rightMouseDown = true;
 				that.leftLocation.x = that.mousePos.x;
 				that.leftLocation.y = that.mousePos.y;
@@ -246,6 +275,7 @@ Main.prototype.init = function(){
 	        if(that.closedModal() && !that.moving()){
                 var madeNewSelection = false;
                 if(e.which === 1){
+					if(globalLogger) globalLogger.logAction(ACTION.LEFT_MOUSE_UP);
                     if(
                         (  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
                         || (that.mousePos.y > that.height/2 + that.paneWidth/2 + that.paneDelta) || (that.mousePos.x > that.width/2 + that.paneWidth/2 + that.paneDelta) ) ) ){
@@ -276,10 +306,12 @@ Main.prototype.init = function(){
                     }
                 }
             if(e.which === 1) {
+				if(globalLogger) globalLogger.logAction(ACTION.LEFT_MOUSE_UP);
                 that.hasLeftMousePressed = false;
                 that.leftMouseDown = false;
             }
             if(e.which === 3){
+				if(globalLogger) globalLogger.logAction(ACTION.RIGHT_MOUSE_UP);
                 // release panning
                 that.rightMouseDown = false;
             }
@@ -299,6 +331,7 @@ Main.prototype.init = function(){
 
     // Raycasting code for game selection on touchscreen devices
 	document.addEventListener("touchend", function(e){
+		if(globalLogger) globalLogger.logAction(ACTION.TOUCH_END);
 //		if( that.closedModal() && !that.moving() && !that.leftJoystick.anyInput() && !that.rightJoystick.anyInput() ){
         if( that.launched && !that.moving() && !that.leftJoystick.anyInput() && !that.rightJoystick.anyInput() ){
             if((  that.selected == null || ((that.mousePos.y < that.height/2 - that.paneWidth/2 - that.paneDelta) || (that.mousePos.x < that.width/2 - that.paneWidth/2 - that.paneDelta)
@@ -367,6 +400,10 @@ Main.prototype.init = function(){
 		if(that.closedModal() && !that.isAnimating){
 			// w
 			if(e.which === 87){
+				if(globalLogger && !that.forwardDown) {
+					that.forwardDown = true;
+					globalLogger.logAction(ACTION.FORWARD_DOWN);
+				}
 				that.cameraVel = STANDARD_VELOCITY;
 				if(!(that.selected == null)){
 					deselectGame();
@@ -374,6 +411,10 @@ Main.prototype.init = function(){
 			}
 			// s
 			else if (e.which === 83){
+				if(globalLogger && !that.backDown){
+					that.backDown = true;
+					globalLogger.logAction(ACTION.BACK_DOWN);
+				}
 			    that.cameraVel = -STANDARD_VELOCITY;
 				if(!(that.selected == null)){
 					deselectGame();
@@ -381,27 +422,44 @@ Main.prototype.init = function(){
 			}
 			// Shift
 			if(e.which === 16){
+				if(globalLogger && !that.shiftDown) {
+					that.shiftDown = true;
+					globalLogger.logAction(ACTION.SHIFT_DOWN);
+				}
+				that.cameraVel = -STANDARD_VELOCITY;
 			    that.speedBoostEngaged = true;
 			}
 			// left arrow
 			// hasLeftMousePressed triggers an end to rotation around a selected object
 			// it is inheriting the functionality of left mouse click
 			if(e.which === 37){
+				if(globalLogger && !that.leftArrow ) {
+					globalLogger.logAction(ACTION.LEFT_ARROW_DOWN);
+				}
 				that.leftArrow = true;
 				that.hasLeftMousePressed = true;
 			}
 			// right arrow
 			if(e.which === 39){
+				if(globalLogger && !that.rightArrow ) {
+					globalLogger.logAction(ACTION.RIGHT_ARROW_DOWN);
+				}
 				that.rightArrow = true;
 				that.hasLeftMousePressed = true;
 			}
 			// up arrow
 			if(e.which === 38){
+				if(globalLogger && !that.upArrow ) {
+					globalLogger.logAction(ACTION.UP_ARROW_DOWN);
+				}
 				that.upArrow = true;
 				that.hasLeftMousePressed = true;
 			}
 			// down arrow
 			if(e.which === 40){
+				if(globalLogger && !that.downArrow ) {
+					globalLogger.logAction(ACTION.DOWN_ARROW_DOWN);
+				}
 				that.downArrow = true;
 				that.hasLeftMousePressed = true;
 			}
@@ -412,12 +470,16 @@ Main.prototype.init = function(){
 		if(that.closedModal() && !that.isAnimating){
 			// w
 			if(e.which === 87){
+				if(globalLogger) globalLogger.logAction(ACTION.FORWARD_UP);
+				that.forwardDown = false;
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
 			}
 			// s
 			else if (e.which === 83){
+				if(globalLogger) globalLogger.logAction(ACTION.BACK_UP);
+				that.backDown = false;
 				if(that.selected == null){
 					that.cameraVel = 0;
 				}
@@ -425,31 +487,39 @@ Main.prototype.init = function(){
 
 			// shift
 			if(e.which === 16){
+				if(globalLogger) globalLogger.logAction(ACTION.SHIFT_UP);
+				that.shiftDown = false;
 				that.speedBoostEngaged = false;
 			}
 			// left arrow
 			if(e.which === 37){
+				if(globalLogger) globalLogger.logAction(ACTION.LEFT_ARROW_UP);
 				that.leftArrow = false;
 			}
 			// up arrow
 			if(e.which === 38){
+				if(globalLogger) globalLogger.logAction(ACTION.UP_ARROW_UP);
 				that.upArrow = false;
 			}
 			// right arrow
 			if(e.which === 39){
+				if(globalLogger) globalLogger.logAction(ACTION.RIGHT_ARROW_UP);
 				that.rightArrow = false;
 			}
 			// down arrow
 			if(e.which === 40){
+				if(globalLogger) globalLogger.logAction(ACTION.DOWN_ARROW_UP);
 				that.downArrow = false;
 			}
 		}
 		// escape key -- close modal
 		if(e.which === 27){
 		    if(that.infoModalOpen) {
+				if(globalLogger) globalLogger.logAction(ACTION.MODAL_INFO_ESC);
 		        $("#infoButtonHolder").click();
 		    }
             if(that.controllerModalOpen) {
+				if(globalLogger) globalLogger.logAction(ACTION.MODAL_CONTROL_ESC);
 		        $("#controllerButtonHolder").click();
 		    }
 		}
@@ -757,12 +827,12 @@ Main.prototype.cameraUpdate = function(){
         }
     }
     if (this.speedBoostEngaged) {
-        if (this.cameraVel == STANDARD_VELOCITY) {this.cameraVel = SPEED_BOOST_VELOCITY};
-        if (this.cameraVel == -STANDARD_VELOCITY) {this.cameraVel = -SPEED_BOOST_VELOCITY};
+        if (this.cameraVel == STANDARD_VELOCITY) {this.cameraVel = SPEED_BOOST_VELOCITY}
+        if (this.cameraVel == -STANDARD_VELOCITY) {this.cameraVel = -SPEED_BOOST_VELOCITY}
     }
     else {
-        if (this.cameraVel == SPEED_BOOST_VELOCITY) {this.cameraVel = STANDARD_VELOCITY};
-        if (this.cameraVel == -SPEED_BOOST_VELOCITY) {this.cameraVel = -STANDARD_VELOCITY};
+        if (this.cameraVel == SPEED_BOOST_VELOCITY) {this.cameraVel = STANDARD_VELOCITY}
+        if (this.cameraVel == -SPEED_BOOST_VELOCITY) {this.cameraVel = -STANDARD_VELOCITY}
     }
 	var cameraMovementVec = new THREE.Vector3(0, 0, -this.cameraVel);
 	cameraMovementVec.applyQuaternion( this.camera.quaternion );
@@ -976,27 +1046,32 @@ Main.prototype.readGames = function(pathToStaticDir){
 	});
 
 	$("#infoButtonHolder").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.INFO_CLICK);
 	    if (!game.touchscreen) {
 	        toggleInfoModal();
 	    }
 	});
 
 	$("#infoButtonHolder").on("touchend", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.INFO_CLICK);
 	    toggleInfoModal();
 	});
 
 	$("#controllerButtonHolder").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.CONTROL_CLICK);
 	    if (!game.touchscreen) {
 	        toggleControllerModal();
 	    }
 	});
 
 	$("#controllerButtonHolder").on("touchend", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.CONTROL_CLICK);
 	    toggleControllerModal();
 	});
 
     // Hook up play/pause audio control
     $("#muteButtonHolder").on("click", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.MUTE_CLICK);
 	    if (!game.touchscreen) {
 	        var backgroundAudio = document.getElementById('backgroundAudio');
             var gameSelectionSound = document.getElementById('gameSelectionSound');
@@ -1029,6 +1104,7 @@ Main.prototype.readGames = function(pathToStaticDir){
     });
 
     $("#muteButtonHolder").on("touchend", function(){
+		if(globalLogger) globalLogger.logAction(ACTION.MUTE_CLICK);
 	    if (game.touchscreen) {
 	        var backgroundAudio = document.getElementById('backgroundAudio');
             var gameSelectionSound = document.getElementById('gameSelectionSound');
